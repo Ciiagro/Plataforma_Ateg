@@ -17,7 +17,7 @@ var R=function(n){if(n==null)return '–';var a=Math.abs(n),s=n<0?'-':'';return 
  M=function(s){var p=s.split('-');return ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'][+p[1]-1]+'/'+p[0].slice(2)},
  cl=function(x){return x==null?'':x<0?'color:#b3261e':'color:#0f6a41'},
  COR=['#0c5232','#c99200','#7a4a22','#e07a1f','#b86b5b'];
-fetch('/api/gestao').then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(v){
+fetch('/api/gestao').then(function(r){if(!r.ok)return r.json().then(function(j){throw new Error(j.detail||'erro')},function(){throw new Error('erro '+r.status)});return r.json()}).then(function(v){
  var T=v.total,C=v.cadeias,per=v.periodo;
  document.getElementById('g-per').textContent='Últimos 12 meses fechados ('+M(per.a[0])+' a '+M(per.a[1])+') comparados aos 12 meses anteriores';
  var top=C.filter(function(c){return c.cresc_receita!=null}).sort(function(a,b){return b.cresc_receita-a.cresc_receita})[0];
@@ -36,7 +36,7 @@ fetch('/api/gestao').then(function(r){if(!r.ok)throw 0;return r.json()}).then(fu
  document.getElementById('g-nota1').textContent='O crescimento da receita total inclui a entrada de novas propriedades no acompanhamento; veja a receita média por propriedade na tabela.';
  document.getElementById('g-tab').innerHTML='<thead><tr><th>Cadeia</th><th>Receita bruta</th><th>Cresc.</th><th>Margem bruta</th><th>Cresc.</th><th>Receita/prop./mês</th></tr></thead><tbody>'+C.map(function(c){return '<tr><td>'+c.nome+'</td><td>'+R(c.receita)+'</td><td style="'+cl(c.cresc_receita)+'">'+P(c.cresc_receita)+'</td><td style="'+cl(c.margem)+'">'+R(c.margem)+'</td><td style="'+cl(c.cresc_margem)+'">'+P(c.cresc_margem)+'</td><td>'+R(c.receita_por_prop)+'</td></tr>'}).join('')+'</tbody>';
  document.getElementById('g-fonte').textContent='Fonte: lançamentos do SisATeG. Margem bruta = receita bruta − despesa direta. Último mês fechado: '+M(v.fim)+'. Valores agregados, sem identificação de produtores.';
-}).catch(function(){document.getElementById('g-per').textContent='Dados indisponíveis: confira a conexão com o banco (.env).'});
+}).catch(function(e){document.getElementById('g-per').textContent=(e&&e.message)||'Dados indisponíveis.'});
 })();
 </script>
 {% endblock %}

@@ -195,6 +195,121 @@ def _norm(s):
     return "".join(c for c in unicodedata.normalize("NFD", s or "") if unicodedata.category(c) != "Mn").upper().strip()
 
 
+_CAD_PADROES = {  # slug da cadeia -> trechos do campo "atividade" (sem diferenciar maiúsculas/acentos parciais)
+    "bovinocultura": ["%bovinocultura de leite%"], "ovinocaprinocultura": ["%ovinocaprinocultura de corte%"], "apicultura": ["%apicult%", "%abelha%"],
+    "fruticultura": ["%frut%"], "suinocultura": ["%suin%"], "carcinicultura": ["%carcin%", "%camar%"]}
+_NOME_CAD = {"bovinocultura": "Bovinocultura de leite", "ovinocaprinocultura": "Ovinocaprinocultura de corte", "apicultura": "Apicultura",
+             "fruticultura": "Fruticultura perene", "suinocultura": "Suinocultura", "carcinicultura": "Carcinicultura"}
+_cache_cad = {"t": 0, "v": None}
+
+
+def _contagem_cadeias(con, tab):
+    from sqlalchemy import text
+    cols = []
+    params = {}
+    for i, (slug, pads) in enumerate(_CAD_PADROES.items()):
+        conds = []
+        for j, p in enumerate(pads):
+            params[f"p{i}_{j}"] = p
+            conds.append(f"atividade ILIKE :p{i}_{j}")
+        cols.append(f"COUNT(DISTINCT id_propriedade) FILTER (WHERE {' OR '.join(conds)})")
+    todas = " OR ".join(f"atividade ILIKE :p{i}_{j}" for i, (s, pads) in enumerate(_CAD_PADROES.items()) for j in range(len(pads)))
+    cols.append(f"COUNT(DISTINCT id_propriedade) FILTER (WHERE atividade IS NOT NULL AND NOT ({todas}))")
+    r = con.execute(text(f"SELECT {', '.join(cols)} FROM {tab}"), params).one()
+    res = {slug: int(r[k] or 0) for k, slug in enumerate(_CAD_PADROES)}
+    res["_outras"] = int(r[len(_CAD_PADROES)] or 0)
+    rows = con.execute(text(f"""SELECT atividade, COUNT(DISTINCT id_propriedade) q FROM {tab}
+        WHERE atividade IS NOT NULL AND NOT ({todas}) GROUP BY 1 ORDER BY 2 DESC"""), params).all()
+    res["_lista"] = [{"nome": str(n).capitalize() if str(n).isupper() else str(n), "n": int(q)} for n, q in rows]
+    return res
+
+
+@app.get("/api/cadeias")
+def cadeias_contagem():
+    """Propriedades atendidas por cadeia (acumulado, agregado). Cache de 10 minutos."""
+    if _cache_cad["v"] is not None and time.time() - _cache_cad["t"] < 600:
+        return _cache_cad["v"]
+    try:
+        from sqlalchemy import text
+        with _get_engine().connect() as con:
+            tab = "public.vw_visitas"
+            try:
+                if con.execute(text("SELECT to_regclass('public.mv_visitas') IS NOT NULL")).scalar():
+                    tab = "public.mv_visitas"
+            except Exception:
+                pass
+            cc = _contagem_cadeias(con, tab)
+            v = {"outras": cc.pop("_outras"), "lista": cc.pop("_lista"), "cadeias": cc}
+    except Exception:
+        raise HTTPException(503, "Contagem indisponível")
+    _cache_cad.update(t=time.time(), v=v)
+    return v
+
+
+_cache_dest = {"t": 0, "v": None}
+
+
+def _mil(n):
+    return f"{int(n):,}".replace(",", ".")
+
+
+@app.get("/api/destaques")
+def destaques():
+    """Frases de destaque da home. Só dados de atendimento agregados (nada de receita/margem, nada individual). Cache de 10 minutos."""
+    if _cache_dest["v"] is not None and time.time() - _cache_dest["t"] < 600:
+        return _cache_dest["v"]
+    out = []
+    try:
+        from sqlalchemy import text
+        with _get_engine().connect() as con:
+            tab = "public.vw_visitas"
+            try:
+                if con.execute(text("SELECT to_regclass('public.mv_visitas') IS NOT NULL")).scalar():
+                    tab = "public.mv_visitas"
+            except Exception:
+                pass
+            r = con.execute(text(f"""SELECT
+                COUNT(DISTINCT id_visita) FILTER (WHERE dt_visita >= date_trunc('year', CURRENT_DATE) AND dt_visita <= CURRENT_DATE),
+                COUNT(DISTINCT id_visita) FILTER (WHERE dt_visita >= date_trunc('year', CURRENT_DATE) - interval '1 year'
+                                                   AND dt_visita <= CURRENT_DATE - interval '1 year'),
+                EXTRACT(year FROM CURRENT_DATE)::int FROM {tab}""")).one()
+            atual, ant, ano = int(r[0]), int(r[1]), r[2]
+            if atual and ant and atual > ant:
+                p = round((atual - ant) / ant * 100)
+                if p >= 1:
+                    out.append({"ic": "visitas", "t": f"Em {ano}, a ATeG já fez {_mil(atual)} visitas, {p}% a mais que no mesmo período de {ano - 1}."})
+            try:
+                mu = con.execute(text(f"""SELECT municipio, COUNT(DISTINCT id_visita) q FROM {tab}
+                    WHERE municipio IS NOT NULL AND dt_visita >= date_trunc('year', CURRENT_DATE) GROUP BY 1 ORDER BY 2 DESC LIMIT 1""")).first()
+                if mu:
+                    out.append({"ic": "mun", "t": f"O município com mais visitas em {ano} é {str(mu[0]).title()}, com {_mil(mu[1])} visitas."})
+            except Exception:
+                pass
+            try:
+                np_ = con.execute(text(f"""SELECT COUNT(*) FROM (SELECT id_propriedade, MIN(dt_visita) m FROM {tab}
+                    WHERE id_propriedade IS NOT NULL GROUP BY 1) s WHERE m >= date_trunc('year', CURRENT_DATE)""")).scalar()
+                if np_:
+                    out.append({"ic": "novas", "t": f"{_mil(np_)} propriedades começaram a ser atendidas em {ano}."})
+                nm = con.execute(text(f"""SELECT COUNT(*) FROM (SELECT municipio, MIN(dt_visita) m FROM {tab}
+                    WHERE municipio IS NOT NULL GROUP BY 1) s WHERE m >= date_trunc('year', CURRENT_DATE)""")).scalar()
+                if nm:
+                    out.append({"ic": "mun", "t": f"{_mil(nm)} {'município recebeu' if nm == 1 else 'municípios receberam'} a ATeG pela primeira vez em {ano}."})
+            except Exception:
+                con.rollback()
+            try:
+                cc = _contagem_cadeias(con, tab)
+                top = max((k for k in cc if not k.startswith("_")), key=cc.get)
+                if cc[top] > 0:
+                    out.append({"ic": "cadeia", "t": f"A cadeia com mais propriedades atendidas é {_NOME_CAD[top]}, com {_mil(cc[top])} propriedades."})
+            except Exception:
+                con.rollback()
+    except Exception:
+        raise HTTPException(503, "Destaques indisponíveis")
+    v = {"itens": out}
+    _cache_dest.update(t=time.time(), v=v)
+    return v
+
+
 @app.get("/api/mapa")
 def mapa_atendimento():
     """Municípios atendidos pela ATeG, com a quantidade de propriedades por município (agregado; nada individual)."""
