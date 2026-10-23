@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block topo %}<header class="topoimg" style="background-image:url('/img/{{ hero }}');background-size:auto 100%"><div class="in"><a class="sel" href="/"><img src="/img/logo_faec_senar.png" alt="FAEC | SENAR Ceará"></a>
+ <div class="herot"><span class="traco"></span><h1 class="t">Plataforma da <em>ATeG</em></h1>
+  <p class="lead">Ambiente institucional de informação, gestão, transparência e difusão de conhecimento da Assistência Técnica e Gerencial, organizado para a gestão estratégica, os colaboradores e o público externo.</p>
+  <a class="btn" href="/resultados">Explorar resultados →</a></div></div></header>{% endblock %}
+{% block corpo %}
+<div class="in">
+
+ <section class="dash" id="numeros"><div class="dh"><span class="dlogo"><svg viewBox="0 0 24 24"><path d="M12 21c0-6 1-10 7-14-.5 7-3 11-7 14zM12 21C12 15 11 11 5 8c.5 6 3 10 7 13z"/></svg></span><div><h2>ATeG no Ceará</h2><small>Indicadores de atendimento</small></div></div>
+ <div class="kps"><div class="kp"><span class="kic"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9H3zM9 20v-6h6v6"/></svg></span><div><b id="n-prop">–</b><span class="kl">Propriedades atendidas</span></div><em class="kano" id="n-prop-a"></em></div><div class="kp"><span class="kic"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5M17 11a2.7 2.7 0 1 0 0-5.4M21 19c0-2.4-1.5-4-3.6-4.6"/></svg></span><div><b id="n-vis">–</b><span class="kl">Visitas realizadas</span></div><em class="kano" id="n-vis-a"></em></div><div class="kp"><span class="kic"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.9 3.1-6.5 7-6.5s7 2.6 7 6.5M8.5 5.5c.8-2 6.2-2 7 0"/></svg></span><div><b id="n-tec">–</b><span class="kl">Técnicos em campo</span></div><em class="kano" id="n-tec-a"></em></div><div class="kp"><span class="kic"><svg viewBox="0 0 24 24"><path d="M5 19c0-8 5-13 14-14 0 9-5 14-14 14z"/><path d="M5 19c3-5 6-8 10-10"/></svg></span><div><b>{{ paineis|selectattr("grupo","equalto","cadeias")|list|length }}</b><span class="kl">Cadeias produtivas</span></div></div></div>
+ <div class="dm" id="secMapa" hidden><h3 class="dt">Presença da ATeG no Ceará</h3>
+  <div class="mapa-g"><div class="mapa"><div id="mapaCE" role="img" aria-label="Mapa do Ceará com os municípios atendidos pela ATeG"></div><span class="norte"><svg viewBox="0 0 24 24"><path d="M12 2l5 16-5-4-5 4z"/></svg>N</span><div class="legm"><p><i style="background:#0c5232"></i>Mais atendidos</p><p><i style="background:#3f9b6a"></i></p><p><i style="background:#7fc29a"></i></p><p><i style="background:#bfe0cc"></i></p><p><i style="background:#e3ebe6"></i>Menos atendidos</p></div></div>
+   <div class="lado"><div class="mstrip"><span class="kic"><svg viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></span><b class="big" id="mapaTotal"></b><span class="mlb">municípios atendidos</span><span class="msep"></span><span class="donut" id="mapaDonut"><u id="mapaPct"></u></span><span class="mlb2">de cobertura territorial</span></div>
+    <h3 class="cadt">Atendimento em diversas cadeias produtivas</h3>
+    <div class="cads cdx">{% for p in paineis if p.grupo == 'cadeias' %}<{{ 'a href="/painel/' ~ p.slug ~ '"' if p.url else 'div' }} class="cd" style="background-image:url('/img/{{ p.img }}')"><span class="cdl"><svg class="ci" viewBox="0 0 24 24">{{ p.ico|safe }}</svg><em>{{ p.titulo }}</em><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span></{{ 'a' if p.url else 'div' }}>{% endfor %}</div></div></div></div>
+ <p class="fonte" id="n-fonte">Carregando dados do SisATeG…</p></section>
+ <section class="bloco"><div class="eyebrow">Acessos por público</div><h2 class="s">Escolha seu ambiente</h2>
+  <div class="acessos">
+   <a class="acc" href="/gestao"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><h3>Gestão estratégica</h3><p>FAEC e Diretoria: visão executiva, resultados, indicadores e prioridades.</p><span class="go">Acessar →</span></div></a>
+   <a class="acc" href="/colaborador"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5M17 11a2.7 2.7 0 1 0 0-5.4M21 19c0-2.4-1.5-4-3.6-4.6"/></svg></span><div><h3>Gestão operacional</h3><p>Colaboradores autorizados: equipes, documentos, agenda e pendências.</p><span class="go">Acessar →</span></div></a>
+   <a class="acc" href="/conhecimento"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 5.5C6.5 4 9.5 4 12 5.5c2.5-1.5 5.5-1.5 8 0V19c-2.5-1.5-5.5-1.5-8 0-2.5-1.5-5.5-1.5-8 0zM12 5.5V19"/></svg></span><div><h3>Conhecimento e oportunidades</h3><p>Produtores, técnicos e estudantes: conteúdos técnicos, tecnologias e capacitações.</p><span class="go">Acessar →</span></div></a>
+  </div></section>
+ <section class="bloco"><div class="eyebrow">Painéis</div><h2 class="s">Resultados da ATeG</h2>
+  <div class="grade mini">
+  {% for p in paineis %}
+   {% if p.url %}<a class="pn" href="/painel/{{ p.slug }}"><div class="im" {% if p.img %}style="background-image:url('/img/{{ p.img }}')"{% endif %}></div><div class="tx"><h3>{{ p.titulo }}</h3><p>{{ p.desc }}</p><span class="go">Abrir painel →</span></div></a>
+   {% else %}<div class="pn off"><div class="im" {% if p.img %}style="background-image:url('/img/{{ p.img }}')"{% endif %}></div><div class="tx"><h3>{{ p.titulo }}</h3><p>{{ p.desc }}</p><span class="em">Em breve</span></div></div>{% endif %}
+  {% endfor %}
+  </div></section>
+ <section class="bloco"><div class="eyebrow">Notícias</div><h2 class="s">Novidades da ATeG</h2>
+  <div class="nots">{% for n in noticias[:3] %}<a class="not" href="{{ n.url }}" target="_blank" rel="noopener"><time>{{ n.data }} · {{ n.fonte }}</time><h3>{{ n.titulo }}</h3><p>{{ n.resumo }}</p><span class="go">Ler notícia →</span></a>{% endfor %}</div><a class="vtodas" href="/noticias">Ver todas as notícias →</a></section>
+
+</div>
+<script src="/img/lib/leaflet.js"></script>
+<script>
+(function(){
+ Promise.all([fetch('/api/mapa').then(function(r){if(!r.ok)throw 0;return r.json()}),fetch('/img/ceara_mun.json').then(function(r){return r.json()})]).then(function(x){
+  var d=x[0],g=x[1];var sec=document.getElementById('secMapa');sec.hidden=false;
+  var nz=function(s){return (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim()};
+  var m=L.map('mapaCE',{zoomControl:false,attributionControl:false,scrollWheelZoom:false,dragging:false,doubleClickZoom:false,touchZoom:false,boxZoom:false,keyboard:false,zoomSnap:.25});
+  var v=Object.keys(d.municipios).map(function(k){return d.municipios[k]}).sort(function(a,b){return a-b});
+  var q=function(p){return v.length?v[Math.min(v.length-1,Math.floor(p*v.length))]:0};
+  var c1=q(.25),c2=q(.5),c3=q(.75);
+  var cor=function(n){return !n?'#e3ebe6':n<=c1?'#bfe0cc':n<=c2?'#7fc29a':n<=c3?'#3f9b6a':'#0c5232'};
+  var cam=L.geoJSON(g,{interactive:false,style:function(f){return {fillColor:cor(d.municipios[nz(f.properties.n)]),fillOpacity:1,color:'#fff',weight:.7}}}).addTo(m);
+  m.fitBounds(cam.getBounds(),{padding:[6,6]});m.setMaxBounds(cam.getBounds().pad(.05));
+  document.getElementById('mapaTotal').textContent=d.atendidos;var pc=Math.round(d.atendidos/g.features.length*1000)/10;document.getElementById('mapaDonut').style.setProperty('--p',pc);document.getElementById('mapaPct').textContent=String(pc).replace('.',',')+'%';
+  
+ }).catch(function(){});
+})();
+(function(){var f=function(n){return Number(n).toLocaleString('pt-BR')},d=function(s){return s?s.split('-').reverse().join('/'):''},g=function(i,x){document.getElementById(i).textContent=x};
+fetch('/api/indicadores').then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(v){
+ var T=v.total,A=v.no_ano,ac='Dados acumulados desde '+d(v.desde),y='Em '+v.ano+': ';
+ [['prop','propriedades'],['vis','visitas'],['tec','tecnicos']].forEach(function(k){
+  g('n-'+k[0],f(T[k[1]]));g('n-'+k[0]+'-a',y+f(A[k[1]]));if(A[k[1]]===T[k[1]]){document.getElementById('n-'+k[0]+'-a').style.display='none'}});
+ g('n-fonte',ac+' até '+d(v.ate)+'. O número grande é o total acumulado do período; a linha “Em '+v.ano+'” conta só o ano corrente. Dados agregados do SisATeG, sem identificação de produtores.')
+}).catch(function(){g('n-fonte','Números indisponíveis: configure o banco no arquivo .env (REMOTE_DB_*) e reinicie o servidor.')})})();
+</script>
+{% endblock %}

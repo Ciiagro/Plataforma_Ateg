@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block titulo %}Notícias{% endblock %}
+{% block corpo %}
+<div class="in"><section class="hero"><span class="traco"></span><h1 class="t">Notícias da <em>ATeG</em></h1></section>
+ <section class="bloco"><div class="nots">{% for n in noticias %}<a class="not" href="{{ n.url }}" target="_blank" rel="noopener"><time>{{ n.data }} · {{ n.fonte }}</time><h3>{{ n.titulo }}</h3><p>{{ n.resumo }}</p><span class="go">Ler notícia →</span></a>{% endfor %}</div></section></div>
+{% endblock %}

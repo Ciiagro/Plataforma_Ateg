@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block titulo %}Gestão estratégica{% endblock %}
+{% block corpo %}
+<div class="in"><section class="hero"><span class="traco"></span><h1 class="t">Gestão <em>estratégica</em></h1>
+ <p class="lead">Visão macro dos resultados econômicos das cadeias produtivas acompanhadas pela ATeG. Área restrita à FAEC e aos responsáveis autorizados.</p></section>
+ <section class="dash" id="gs"><div class="dh"><div><h2>Resultado das cadeias</h2><small id="g-per">Carregando…</small></div></div>
+  <div class="kps" id="g-kps"></div>
+  <div class="dm"><h3 class="dt">Receita bruta por cadeia e margem bruta total (mês a mês)</h3><div style="height:320px"><canvas id="g-serie"></canvas></div></div>
+  <div class="gg"><div class="dm"><h3 class="dt">Crescimento da receita bruta por cadeia</h3><div style="height:260px"><canvas id="g-cresc"></canvas></div><p class="fonte" id="g-nota1"></p></div>
+   <div class="dm"><h3 class="dt">Comparativo por cadeia</h3><div style="overflow-x:auto"><table class="tb" id="g-tab"></table></div></div></div>
+  <p class="fonte" id="g-fonte"></p></section></div>
+<script src="/img/lib/chart.umd.min.js"></script>
+<script>
+(function(){
+var R=function(n){if(n==null)return '–';var a=Math.abs(n),s=n<0?'-':'';return s+'R$ '+(a>=1e6?(a/1e6).toLocaleString('pt-BR',{maximumFractionDigits:2})+' mi':a>=1e3?(a/1e3).toLocaleString('pt-BR',{maximumFractionDigits:0})+' mil':a.toLocaleString('pt-BR',{maximumFractionDigits:0}))},
+ P=function(x){return x==null?'–':(x>0?'+':'')+(x*100).toLocaleString('pt-BR',{maximumFractionDigits:1})+'%'},
+ M=function(s){var p=s.split('-');return ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'][+p[1]-1]+'/'+p[0].slice(2)},
+ cl=function(x){return x==null?'':x<0?'color:#b3261e':'color:#0f6a41'},
+ COR=['#0c5232','#c99200','#7a4a22','#e07a1f','#b86b5b'];
+fetch('/api/gestao').then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(v){
+ var T=v.total,C=v.cadeias,per=v.periodo;
+ document.getElementById('g-per').textContent='Últimos 12 meses fechados ('+M(per.a[0])+' a '+M(per.a[1])+') comparados aos 12 meses anteriores';
+ var top=C.filter(function(c){return c.cresc_receita!=null}).sort(function(a,b){return b.cresc_receita-a.cresc_receita})[0];
+ var ic=function(p){return '<svg viewBox="0 0 24 24">'+p+'</svg>'};
+ var cards=[['Receita bruta',R(T.receita),'Anterior: '+R(T.receita_ant)+' · '+P(T.cresc_receita),'<path d="M12 3v18M17 7c0-2-2.2-3-5-3s-5 1-5 3 2.2 3 5 3 5 1 5 3-2.2 3-5 3-5-1-5-3"/>',T.cresc_receita],
+  ['Margem bruta',R(T.margem),'Anterior: '+R(T.margem_ant)+' · '+P(T.cresc_margem),'<path d="M4 18l5-6 4 3 7-9M15 6h5v5"/>',T.cresc_margem],
+  ['Despesa direta',R(T.despesa),'Anterior: '+R(T.despesa_ant),'<path d="M4 7h16M6 7v12h12V7M9 7V4h6v3"/>',null],
+  ['Propriedades com lançamento',Number(T.propriedades).toLocaleString('pt-BR'),'Anterior: '+Number(T.propriedades_ant).toLocaleString('pt-BR'),'<path d="M3 11l9-7 9 7v9H3zM9 20v-6h6v6"/>',null],
+  ['Cadeia que mais cresceu',top?top.nome:'–',top?'Receita '+P(top.cresc_receita)+' vs. 12 meses anteriores':'','<path d="M12 21V8M12 8l-5 5M12 8l5 5M5 4h14"/>',null]];
+ document.getElementById('g-kps').innerHTML=cards.map(function(c){return '<div class="kp"><span class="kic">'+ic(c[3])+'</span><div><b style="'+(c[0]=='Cadeia que mais cresceu'?'font-size:20px;line-height:1.15':'')+'">'+c[1]+'</b><span class="kl">'+c[0]+'</span></div><em class="kano" style="'+cl(c[4])+'">'+c[2]+'</em></div>'}).join('');
+ var ds=Object.keys(v.serie.receita).map(function(n,i){return {type:'bar',label:n,data:v.serie.receita[n],backgroundColor:COR[i%5],stack:'r',order:2}});
+ ds.push({type:'line',label:'Margem bruta total',data:v.serie.margem,borderColor:'#173324',backgroundColor:'#173324',borderWidth:2,pointRadius:2,tension:.25,order:1});
+ new Chart(document.getElementById('g-serie'),{data:{labels:v.serie.meses.map(M),datasets:ds},options:{maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'bottom',labels:{boxWidth:12,font:{size:11}}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+R(c.parsed.y)}}}},scales:{x:{stacked:true,grid:{display:false},ticks:{font:{size:10}}},y:{stacked:true,ticks:{callback:function(x){return R(x)},font:{size:10}}}}}});
+ var oc=C.filter(function(c){return c.cresc_receita!=null}).sort(function(a,b){return b.cresc_receita-a.cresc_receita});
+ new Chart(document.getElementById('g-cresc'),{type:'bar',data:{labels:oc.map(function(c){return c.nome}),datasets:[{data:oc.map(function(c){return +(c.cresc_receita*100).toFixed(1)}),backgroundColor:oc.map(function(c){return c.cresc_receita<0?'#b3261e':'#0f6a41'})}]},options:{indexAxis:'y',maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.parsed.x.toLocaleString('pt-BR')+'%'}}}},scales:{x:{ticks:{callback:function(x){return x+'%'},font:{size:10}}},y:{ticks:{font:{size:11}}}}}});
+ document.getElementById('g-nota1').textContent='O crescimento da receita total inclui a entrada de novas propriedades no acompanhamento; veja a receita média por propriedade na tabela.';
+ document.getElementById('g-tab').innerHTML='<thead><tr><th>Cadeia</th><th>Receita bruta</th><th>Cresc.</th><th>Margem bruta</th><th>Cresc.</th><th>Receita/prop./mês</th></tr></thead><tbody>'+C.map(function(c){return '<tr><td>'+c.nome+'</td><td>'+R(c.receita)+'</td><td style="'+cl(c.cresc_receita)+'">'+P(c.cresc_receita)+'</td><td style="'+cl(c.margem)+'">'+R(c.margem)+'</td><td style="'+cl(c.cresc_margem)+'">'+P(c.cresc_margem)+'</td><td>'+R(c.receita_por_prop)+'</td></tr>'}).join('')+'</tbody>';
+ document.getElementById('g-fonte').textContent='Fonte: lançamentos do SisATeG. Margem bruta = receita bruta − despesa direta. Último mês fechado: '+M(v.fim)+'. Valores agregados, sem identificação de produtores.';
+}).catch(function(){document.getElementById('g-per').textContent='Dados indisponíveis: confira a conexão com o banco (.env).'});
+})();
+</script>
+{% endblock %}

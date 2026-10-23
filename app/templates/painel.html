@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block titulo %}{{ p.titulo }}{% endblock %}
+{% block corpo %}
+<div class="in topo-p"><h1>{{ p.titulo }}</h1><a class="lnk" href="{{ p.url }}" target="_blank" rel="noopener">Abrir em tela cheia ↗</a></div>
+<iframe class="moldura" src="{{ p.url }}" title="{{ p.titulo }}" loading="lazy"></iframe>
+{% endblock %}
