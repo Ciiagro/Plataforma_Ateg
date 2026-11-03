@@ -6,7 +6,7 @@
  {% for g, nome, sub in [("visitas","Acompanhamento da execução","Visitas realizadas, propriedades assistidas, equipe e alcance territorial."),("cadeias","Cadeias produtivas","Receita bruta, produção e margem bruta por cadeia.")] %}
  <section class="bloco"><div class="eyebrow">{{ nome }}</div><h2 class="s">{{ sub }}</h2><div class="grade big">
   {% for p in paineis if p.grupo == g %}
-   {% if p.url %}<a class="pn" href="/painel/{{ p.slug }}"><div class="im" {% if p.img %}style="background-image:url('/img/{{ p.img }}')"{% endif %}></div><div class="tx"><h3>{{ p.titulo }}</h3><p>{{ p.desc }}</p><span class="go">Abrir painel →</span></div></a>
+   {% if p.url %}<a class="pn" href="/painel/{{ p.slug }}" target="_blank" rel="noopener"><div class="im" {% if p.img %}style="background-image:url('/img/{{ p.img }}')"{% endif %}></div><div class="tx"><h3>{{ p.titulo }}</h3><p>{{ p.desc }}</p><span class="go">Abrir painel →</span></div></a>
    {% else %}<div class="pn off"><div class="im" {% if p.img %}style="background-image:url('/img/{{ p.img }}')"{% endif %}></div><div class="tx"><h3>{{ p.titulo }}</h3><p>{{ p.desc }}</p><span class="em">Em breve</span></div></div>{% endif %}
   {% endfor %}</div></section>
  {% endfor %}

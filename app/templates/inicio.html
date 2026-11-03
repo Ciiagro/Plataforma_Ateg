@@ -13,7 +13,7 @@
   <div class="mapa-g"><div class="mapa"><div id="mapaCE" role="img" aria-label="Mapa do Ceará com os municípios atendidos pela ATeG"></div><span class="norte"><svg viewBox="0 0 24 24"><path d="M12 2l5 16-5-4-5 4z"/></svg>N</span><div class="legm"><p><i style="background:#0c5232"></i>Mais atendidos</p><p><i style="background:#3f9b6a"></i></p><p><i style="background:#7fc29a"></i></p><p><i style="background:#bfe0cc"></i></p><p><i style="background:#e3ebe6"></i>Menos atendidos</p></div></div>
    <div class="lado"><div class="mstrip"><span class="kic"><svg viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></span><b class="big" id="mapaTotal"></b><span class="mlb">municípios atendidos</span><span class="msep"></span><span class="donut" id="mapaDonut"><u id="mapaPct"></u></span><span class="mlb2">de cobertura territorial</span></div>
     <h3 class="cadt">Atendimento em diversas cadeias produtivas</h3>
-    <div class="cads cdx">{% for p in paineis if p.grupo == 'cadeias' %}{% if p.url %}<a href="/painel/{{ p.slug }}"{% else %}<div{% endif %} class="cd" data-slug="{{ p.slug }}" style="background-image:url('/img/{{ p.img }}')"><span class="cdl"><svg class="ci" viewBox="0 0 24 24">{{ p.ico|safe }}</svg><em>{{ p.titulo }}<small class="cdn"></small></em><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span></{{ 'a' if p.url else 'div' }}>{% endfor %}</div><p class="cadnota" id="cadOutras" hidden></p></div></div></div>
+    <div class="cads cdx">{% for p in paineis if p.grupo == 'cadeias' %}{% if p.url %}<a href="/painel/{{ p.slug }}" target="_blank" rel="noopener"{% else %}<div{% endif %} class="cd" data-slug="{{ p.slug }}" style="background-image:url('/img/{{ p.img }}')"><span class="cdl"><svg class="ci" viewBox="0 0 24 24">{{ p.ico|safe }}</svg><em>{{ p.titulo }}<small class="cdn"></small></em><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span></{{ 'a' if p.url else 'div' }}>{% endfor %}</div><p class="cadnota" id="cadOutras" hidden></p></div></div></div>
  <p class="fonte" id="n-fonte">Carregando dados do SisATeG…</p></section>
  <section class="bloco"><div class="eyebrow">Acessos por público</div><h2 class="s">Escolha seu ambiente</h2>
   <div class="acessos">
@@ -24,7 +24,7 @@
  <section class="bloco"><div class="eyebrow">Painéis</div><h2 class="s">Resultados da ATeG</h2>
   <div class="grade mini">
   {% for p in paineis %}
-   {% if p.url %}<a class="pn" href="/painel/{{ p.slug }}"><div class="im" {% if p.img %}style="background-image:url('/img/{{ p.img }}')"{% endif %}></div><div class="tx"><h3>{{ p.titulo }}</h3><p>{{ p.desc }}</p><span class="go">Abrir painel →</span></div></a>
+   {% if p.url %}<a class="pn" href="/painel/{{ p.slug }}" target="_blank" rel="noopener"><div class="im" {% if p.img %}style="background-image:url('/img/{{ p.img }}')"{% endif %}></div><div class="tx"><h3>{{ p.titulo }}</h3><p>{{ p.desc }}</p><span class="go">Abrir painel →</span></div></a>
    {% else %}<div class="pn off"><div class="im" {% if p.img %}style="background-image:url('/img/{{ p.img }}')"{% endif %}></div><div class="tx"><h3>{{ p.titulo }}</h3><p>{{ p.desc }}</p><span class="em">Em breve</span></div></div>{% endif %}
   {% endfor %}
   </div></section>
