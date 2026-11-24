@@ -264,11 +264,91 @@ def sair(request: Request):
 
 
 @app.get("/colaborador", response_class=HTMLResponse)
-def colaborador(request: Request):
+def colaborador(request: Request, ok: str = "", erro: str = ""):
     r = _exige_login(request)
     if r:
         return r
-    return _pg(request, "colaborador.html")
+    return _pg(request, "colaborador.html", comunicados=_comunicados(), eh_coord=_eh_coord(request), ok=ok, erro=erro)
+
+
+def _eh_coord(request: Request):
+    return request.session.get("tipo") == "coordenador"
+
+
+_MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"]
+
+
+def _comunicados(so_mes=True):
+    """Comunicados ativos (tabela public.portal_comunicados). so_mes=True: só os do mês atual (Área do colaborador);
+    False: todos, do mais novo para o mais antigo (página /comunicados). Sem a tabela, devolve lista vazia."""
+    try:
+        from sqlalchemy import text
+        filtro = "AND criado_em >= date_trunc('month', NOW())" if so_mes else ""
+        limite = 30 if so_mes else 500
+        ordem = "destaque DESC, criado_em DESC, id DESC" if so_mes else "criado_em DESC, id DESC"
+        base = "SELECT id, titulo, texto, criado_por, to_char(criado_em, 'DD/MM/YYYY'), (criado_em > NOW() - interval '3 days'), {d}, to_char(criado_em, 'YYYY-MM') FROM public.portal_comunicados WHERE ativo " + filtro + " ORDER BY {o} LIMIT " + str(limite)
+        with _get_engine().connect() as con:
+            try:
+                rows = con.execute(text(base.format(d="destaque", o=ordem))).all()
+            except Exception:
+                con.rollback()
+                rows = con.execute(text(base.format(d="FALSE", o="criado_em DESC, id DESC"))).all()
+        out = []
+        for r in rows:
+            a, m = r[7].split("-")
+            out.append({"id": r[0], "titulo": r[1], "texto": r[2], "por": r[3], "data": r[4], "novo": bool(r[5]), "destaque": bool(r[6]),
+                        "mes": f"{_MESES[int(m) - 1].capitalize()} de {a}"})
+        return out
+    except Exception:
+        return []
+
+
+@app.get("/comunicados", response_class=HTMLResponse)
+def comunicados_todos(request: Request, ok: str = "", erro: str = ""):
+    r = _exige_login(request)
+    if r:
+        return r
+    return _pg(request, "comunicados.html", comunicados=_comunicados(False), eh_coord=_eh_coord(request), ok=ok, erro=erro)
+
+
+@app.post("/comunicados")
+def comunicado_novo(request: Request, titulo: str = Form(""), texto: str = Form(""), destaque: str = Form("")):
+    if not _logado(request):
+        return RedirectResponse("/entrar?next=/colaborador", status_code=303)
+    if not _eh_coord(request):
+        return RedirectResponse("/colaborador?erro=Só a coordenação publica comunicados.#comunicados", status_code=303)
+    titulo, texto = (titulo or "").strip()[:150], (texto or "").strip()[:3000]
+    if not titulo or not texto:
+        return RedirectResponse("/colaborador?erro=Preencha o título e o texto.#comunicados", status_code=303)
+    try:
+        from sqlalchemy import text
+        with _get_engine().begin() as con:
+            try:
+                with con.begin_nested():
+                    con.execute(text("INSERT INTO public.portal_comunicados (titulo, texto, criado_por, destaque) VALUES (:t, :x, :p, :d)"),
+                                {"t": titulo, "x": texto, "p": request.session.get("usuario") or "", "d": bool(destaque)})
+            except Exception:   # coluna "destaque" ainda não criada: publica sem destaque
+                con.execute(text("INSERT INTO public.portal_comunicados (titulo, texto, criado_por) VALUES (:t, :x, :p)"),
+                            {"t": titulo, "x": texto, "p": request.session.get("usuario") or ""})
+    except Exception:
+        import logging
+        logging.getLogger("uvicorn.error").exception("comunicado_novo")
+        return RedirectResponse("/colaborador?erro=Não foi possível publicar agora.#comunicados", status_code=303)
+    return RedirectResponse("/colaborador?ok=Comunicado publicado.#comunicados", status_code=303)
+
+
+@app.post("/comunicados/{cid}/remover")
+def comunicado_remover(request: Request, cid: int):
+    if not _logado(request) or not _eh_coord(request):
+        return RedirectResponse("/colaborador", status_code=303)
+    try:
+        from sqlalchemy import text
+        with _get_engine().begin() as con:
+            con.execute(text("UPDATE public.portal_comunicados SET ativo = FALSE WHERE id = :i"), {"i": cid})
+    except Exception:
+        import logging
+        logging.getLogger("uvicorn.error").exception("comunicado_remover")
+    return RedirectResponse("/colaborador?ok=Comunicado removido.#comunicados", status_code=303)
 
 
 @app.get("/gestao", response_class=HTMLResponse)

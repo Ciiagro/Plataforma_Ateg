@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block titulo %}Comunicados{% endblock %}
+{% block corpo %}
+<style>
+.cm{border-top:1px solid var(--linha);padding:12px 2px}.cm:first-of-type{border-top:0}
+.cm-t{display:flex;align-items:center;gap:10px;justify-content:space-between}.cm h3{margin:0;font-size:15.5px;color:var(--verde)}
+.cm .dt{color:var(--mut);font-size:12.5px;white-space:nowrap}.cm p{margin:5px 0 4px;white-space:pre-line;line-height:1.5}
+.cm .por{display:flex;justify-content:space-between;align-items:center;color:var(--mut);font-size:12.5px}
+.cm .por button{background:none;border:0;color:#b3261e;font:inherit;font-weight:600;cursor:pointer}
+.mes-t{margin:26px 0 8px;font-size:18px;color:var(--verde);display:flex;align-items:center;gap:12px}.mes-t::after{content:"";flex:1;height:1px;background:#cfe0d5}
+.cx{background:#fff;border:1px solid var(--linha);border-radius:18px;box-shadow:var(--sombra);padding:8px 20px}
+</style>
+<div class="in" style="padding-bottom:40px"><section class="hero"><span class="traco"></span><h1 class="t"><em>Comunicados</em> da coordenação</h1>
+ <p class="lead">Todos os avisos, do mais recente para o mais antigo.</p>
+ <p style="margin:8px 0 0"><a href="/colaborador#comunicados" style="color:var(--verde2);font-weight:700;text-decoration:none">← Voltar à Área do colaborador</a></p></section>
+ {% if ok %}<div class="avisoex" style="background:#e4f4ea;color:#0c5232">{{ ok }}</div>{% endif %}
+ {% if erro %}<div class="avisoex" style="background:#fde8e6;color:#b3261e">{{ erro }}</div>{% endif %}
+ {% if comunicados %}{% set ns = namespace(mes='') %}
+  {% for c in comunicados %}
+   {% if c.mes != ns.mes %}{% if ns.mes %}</div>{% endif %}<h2 class="mes-t">{{ c.mes }}</h2><div class="cx">{% set ns.mes = c.mes %}{% endif %}
+   <article class="cm"><div class="cm-t"><h3>{{ c.titulo }}</h3><span class="dt">{{ c.data }}</span></div>
+    <p>{{ c.texto }}</p>
+    <div class="por"><span>{{ c.por }}</span>{% if eh_coord %}<form method="post" action="/comunicados/{{ c.id }}/remover" onsubmit="return confirm('Remover este comunicado?')"><button type="submit">Remover</button></form>{% endif %}</div></article>
+  {% endfor %}</div>
+ {% else %}<p style="color:var(--mut)">Nenhum comunicado publicado ainda.</p>{% endif %}
+</div>
+{% endblock %}
