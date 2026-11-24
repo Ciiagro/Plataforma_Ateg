@@ -338,6 +338,29 @@ def comunicado_novo(request: Request, titulo: str = Form(""), texto: str = Form(
     return RedirectResponse(base + "?ok=Comunicado publicado.#comunicados", status_code=303)
 
 
+@app.post("/comunicados/{cid}/editar")
+def comunicado_editar(request: Request, cid: int, titulo: str = Form(""), texto: str = Form(""), destaque: str = Form("")):
+    if not _logado(request) or not _eh_coord(request):
+        return RedirectResponse("/comunicados", status_code=303)
+    titulo, texto = (titulo or "").strip()[:150], (texto or "").strip()[:3000]
+    if not titulo or not texto:
+        return RedirectResponse("/comunicados?erro=Preencha o título e o texto.", status_code=303)
+    try:
+        from sqlalchemy import text
+        with _get_engine().begin() as con:
+            try:
+                with con.begin_nested():
+                    con.execute(text("UPDATE public.portal_comunicados SET titulo = :t, texto = :x, destaque = :d WHERE id = :i AND ativo"),
+                                {"t": titulo, "x": texto, "d": bool(destaque), "i": cid})
+            except Exception:   # coluna "destaque" ainda não criada
+                con.execute(text("UPDATE public.portal_comunicados SET titulo = :t, texto = :x WHERE id = :i AND ativo"), {"t": titulo, "x": texto, "i": cid})
+    except Exception:
+        import logging
+        logging.getLogger("uvicorn.error").exception("comunicado_editar")
+        return RedirectResponse("/comunicados?erro=Não foi possível salvar agora.", status_code=303)
+    return RedirectResponse("/comunicados?ok=Comunicado atualizado.", status_code=303)
+
+
 @app.post("/comunicados/{cid}/remover")
 def comunicado_remover(request: Request, cid: int):
     if not _logado(request) or not _eh_coord(request):

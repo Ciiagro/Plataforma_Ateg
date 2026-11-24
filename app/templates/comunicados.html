@@ -30,7 +30,14 @@
 .cp-por{color:var(--mut);font-size:12px;white-space:nowrap}
 .cp-rm{margin-left:auto;background:none;border:1px solid #f1c9c5;color:#b3261e;border-radius:999px;font:inherit;font-size:12px;font-weight:600;padding:1px 10px;cursor:pointer}
 .cp-rm:hover{background:#fde8e6}
-.cp-rmf{margin:0 0 0 auto}
+.cp-acoes{margin-left:auto;display:flex;gap:6px;align-items:center}
+.cp-rm{margin-left:0}
+.cp-ed{background:none;border:1px solid #cfe0d5;color:var(--verde2);border-radius:999px;font:inherit;font-size:12px;font-weight:600;padding:1px 10px;cursor:pointer}.cp-ed:hover{background:#e4f4ea}
+.cp-edf{margin-top:8px;display:grid;gap:8px}.cp-edf[hidden]{display:none}
+.cp-edf input[type=text],.cp-edf textarea{width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid var(--linha);border-radius:10px;font:inherit}
+.cp-edf label{font-weight:600;color:var(--verde);font-size:13px}
+.cp-sv{background:var(--verde);color:#fff;border:0;border-radius:999px;padding:7px 22px;font:inherit;font-weight:800;cursor:pointer}
+.cp-cn{background:none;border:0;color:var(--mut);font:inherit;font-weight:600;cursor:pointer}
 .cp-sel{padding:9px 14px;border:1px solid var(--linha);border-radius:999px;font:inherit;background:#fff;font-weight:600;color:var(--verde)}
 .cp-vazio{display:none;color:var(--mut);padding:16px 0}
 </style>
@@ -61,8 +68,15 @@
   <article class="cp-item{% if c.destaque %} dest{% endif %}" data-mes="{{ c.mes }}" data-txt="{{ (c.titulo ~ ' ' ~ c.texto ~ ' ' ~ c.por)|lower }}">
    <div class="cp-l1"><span class="cp-chip"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>{{ c.data }}</span>
     <h3 class="cp-h">{{ c.titulo }}</h3>{% if c.novo %}<span class="cp-novo-b">Novo</span>{% endif %}{% if c.destaque %}<span class="cp-dest-b">Destaque</span>{% endif %}
-    {% if eh_coord %}<form method="post" action="/comunicados/{{ c.id }}/remover" class="cp-rmf" onsubmit="return confirm('Remover este comunicado?')"><button type="submit" class="cp-rm">Remover</button></form>{% endif %}</div>
+    {% if eh_coord %}<span class="cp-acoes"><button type="button" class="cp-ed" data-ed="{{ c.id }}">Editar</button>
+     <form method="post" action="/comunicados/{{ c.id }}/remover" onsubmit="return confirm('Remover este comunicado?')" style="margin:0"><button type="submit" class="cp-rm">Remover</button></form></span>{% endif %}</div>
    <p class="cp-l2">{{ c.texto }} <span class="cp-por">— {{ c.por }}</span></p>
+   {% if eh_coord %}<form method="post" action="/comunicados/{{ c.id }}/editar" class="cp-edf" id="edf{{ c.id }}" hidden>
+    <input type="text" name="titulo" maxlength="150" required value="{{ c.titulo }}">
+    <textarea name="texto" maxlength="3000" required rows="3">{{ c.texto }}</textarea>
+    <label><input type="checkbox" name="destaque" value="1"{% if c.destaque %} checked{% endif %}> Destacar no topo</label>
+    <span><button type="submit" class="cp-sv">Salvar</button> <button type="button" class="cp-cn" data-cn="{{ c.id }}">Cancelar</button></span>
+   </form>{% endif %}
   </article>
  {% endfor %}</div>
  <p class="cp-vazio" id="cpVazio">Nenhum comunicado encontrado para essa busca.</p>
@@ -73,6 +87,7 @@
 function f(){var t=q.value.trim().toLowerCase(),m=sel.value,c=0;itens.forEach(function(e){var ok=(!m||e.dataset.mes===m)&&(!t||e.dataset.txt.indexOf(t)>-1);e.style.display=ok?'':'none';if(ok)c++});
 cabs.forEach(function(h){var l=h.nextElementSibling,vis=l&&[].some.call(l.children,function(x){return x.style.display!=='none'});h.style.display=(vis&&!m)?'':'none';if(l)l.style.display=vis?'':'none'});
 if(v)v.style.display=c?'none':'block';n.textContent=c+' comunicado'+(c===1?'':'s')}
+document.addEventListener('click',function(e){var b=e.target.closest('[data-ed],[data-cn]');if(!b)return;var id=b.dataset.ed||b.dataset.cn,fm=document.getElementById('edf'+id);if(fm){fm.hidden=!b.dataset.ed;if(b.dataset.ed)fm.querySelector('input').focus()}});
 q.addEventListener('input',f);sel.addEventListener('change',f);f()})();
 </script>
 {% endblock %}
