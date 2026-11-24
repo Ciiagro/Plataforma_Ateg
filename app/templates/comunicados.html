@@ -4,7 +4,7 @@
 <style>
 .cm{border-top:1px solid var(--linha);padding:12px 2px}.cm:first-of-type{border-top:0}
 .cm-t{display:flex;align-items:center;gap:10px;justify-content:space-between}.cm h3{margin:0;font-size:15.5px;color:var(--verde)}
-.cm .dt{color:var(--mut);font-size:12.5px;white-space:nowrap}.cm p{margin:5px 0 4px;white-space:pre-line;line-height:1.5}
+.cm .cm-dt{color:var(--mut);font-size:12.5px;white-space:nowrap}.cm p{margin:5px 0 4px;white-space:pre-line;line-height:1.5}
 .cm .por{display:flex;justify-content:space-between;align-items:center;color:var(--mut);font-size:12.5px}
 .cm .por button{background:none;border:0;color:#b3261e;font:inherit;font-weight:600;cursor:pointer}
 .mes-t{margin:26px 0 8px;font-size:18px;color:var(--verde);display:flex;align-items:center;gap:12px}.mes-t::after{content:"";flex:1;height:1px;background:#cfe0d5}
@@ -15,10 +15,19 @@
  <p style="margin:8px 0 0"><a href="/colaborador#comunicados" style="color:var(--verde2);font-weight:700;text-decoration:none">← Voltar à Área do colaborador</a></p></section>
  {% if ok %}<div class="avisoex" style="background:#e4f4ea;color:#0c5232">{{ ok }}</div>{% endif %}
  {% if erro %}<div class="avisoex" style="background:#fde8e6;color:#b3261e">{{ erro }}</div>{% endif %}
+{% if eh_coord %}<section id="novo" class="cx" style="padding:18px 20px;margin-top:6px">
+  <h2 style="margin:0 0 10px;font-size:19px;color:var(--verde)">Novo comunicado</h2>
+  <form method="post" action="/comunicados">
+   <input name="titulo" maxlength="150" required placeholder="Título" style="width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid var(--linha);border-radius:10px;font:inherit;margin-bottom:10px">
+   <textarea name="texto" maxlength="3000" required rows="4" placeholder="Texto do aviso" style="width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid var(--linha);border-radius:10px;font:inherit;margin-bottom:10px;resize:vertical"></textarea>
+   <label style="display:flex;align-items:center;gap:8px;margin:0 0 12px;font-weight:600;color:var(--verde)"><input type="checkbox" name="destaque" value="1"> Destacar no topo da Área do colaborador</label>
+   <button type="submit" style="background:var(--verde);color:#fff;border:0;border-radius:999px;padding:11px 28px;font:inherit;font-weight:800;cursor:pointer">Publicar</button>
+   <span style="color:var(--mut);font-size:12.5px;margin-left:10px">Visível para todos os colaboradores logados. A tela principal mostra os 5 mais recentes do mês.</span>
+  </form></section>{% endif %}
  {% if comunicados %}{% set ns = namespace(mes='') %}
   {% for c in comunicados %}
    {% if c.mes != ns.mes %}{% if ns.mes %}</div>{% endif %}<h2 class="mes-t">{{ c.mes }}</h2><div class="cx">{% set ns.mes = c.mes %}{% endif %}
-   <article class="cm"><div class="cm-t"><h3>{{ c.titulo }}</h3><span class="dt">{{ c.data }}</span></div>
+   <article class="cm"><div class="cm-t"><h3>{{ c.titulo }}</h3><span class="cm-dt">{{ c.data }}</span></div>
     <p>{{ c.texto }}</p>
     <div class="por"><span>{{ c.por }}</span>{% if eh_coord %}<form method="post" action="/comunicados/{{ c.id }}/remover" onsubmit="return confirm('Remover este comunicado?')"><button type="submit">Remover</button></form>{% endif %}</div></article>
   {% endfor %}</div>

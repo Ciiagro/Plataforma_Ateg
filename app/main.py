@@ -283,10 +283,10 @@ def _comunicados(so_mes=True):
     False: todos, do mais novo para o mais antigo (página /comunicados). Sem a tabela, devolve lista vazia."""
     try:
         from sqlalchemy import text
-        filtro = "AND criado_em >= date_trunc('month', NOW())" if so_mes else ""
-        limite = 30 if so_mes else 500
+        filtro = "AND criado_em >= date_trunc('month', "+"(NOW() AT TIME ZONE 'America/Sao_Paulo')"+")" if so_mes else ""
+        limite = 5 if so_mes else 500
         ordem = "destaque DESC, criado_em DESC, id DESC" if so_mes else "criado_em DESC, id DESC"
-        base = "SELECT id, titulo, texto, criado_por, to_char(criado_em, 'DD/MM/YYYY'), (criado_em > NOW() - interval '3 days'), {d}, to_char(criado_em, 'YYYY-MM') FROM public.portal_comunicados WHERE ativo " + filtro + " ORDER BY {o} LIMIT " + str(limite)
+        base = "SELECT id, titulo, texto, criado_por, to_char(criado_em, 'DD/MM/YYYY \"às\" HH24:MI'), (criado_em > (NOW() AT TIME ZONE 'America/Sao_Paulo') - interval '3 days'), {d}, to_char(criado_em, 'YYYY-MM') FROM public.portal_comunicados WHERE ativo " + filtro + " ORDER BY {o} LIMIT " + str(limite)
         with _get_engine().connect() as con:
             try:
                 rows = con.execute(text(base.format(d="destaque", o=ordem))).all()
@@ -316,31 +316,31 @@ def comunicado_novo(request: Request, titulo: str = Form(""), texto: str = Form(
     if not _logado(request):
         return RedirectResponse("/entrar?next=/colaborador", status_code=303)
     if not _eh_coord(request):
-        return RedirectResponse("/colaborador?erro=Só a coordenação publica comunicados.#comunicados", status_code=303)
+        return RedirectResponse("/comunicados?erro=Só a coordenação publica comunicados.", status_code=303)
     titulo, texto = (titulo or "").strip()[:150], (texto or "").strip()[:3000]
     if not titulo or not texto:
-        return RedirectResponse("/colaborador?erro=Preencha o título e o texto.#comunicados", status_code=303)
+        return RedirectResponse("/comunicados?erro=Preencha o título e o texto.", status_code=303)
     try:
         from sqlalchemy import text
         with _get_engine().begin() as con:
             try:
                 with con.begin_nested():
-                    con.execute(text("INSERT INTO public.portal_comunicados (titulo, texto, criado_por, destaque) VALUES (:t, :x, :p, :d)"),
+                    con.execute(text("INSERT INTO public.portal_comunicados (titulo, texto, criado_por, destaque, criado_em) VALUES (:t, :x, :p, :d, (NOW() AT TIME ZONE 'America/Sao_Paulo'))"),
                                 {"t": titulo, "x": texto, "p": request.session.get("usuario") or "", "d": bool(destaque)})
             except Exception:   # coluna "destaque" ainda não criada: publica sem destaque
-                con.execute(text("INSERT INTO public.portal_comunicados (titulo, texto, criado_por) VALUES (:t, :x, :p)"),
+                con.execute(text("INSERT INTO public.portal_comunicados (titulo, texto, criado_por, criado_em) VALUES (:t, :x, :p, (NOW() AT TIME ZONE 'America/Sao_Paulo'))"),
                             {"t": titulo, "x": texto, "p": request.session.get("usuario") or ""})
     except Exception:
         import logging
         logging.getLogger("uvicorn.error").exception("comunicado_novo")
-        return RedirectResponse("/colaborador?erro=Não foi possível publicar agora.#comunicados", status_code=303)
-    return RedirectResponse("/colaborador?ok=Comunicado publicado.#comunicados", status_code=303)
+        return RedirectResponse("/comunicados?erro=Não foi possível publicar agora.", status_code=303)
+    return RedirectResponse("/comunicados?ok=Comunicado publicado.", status_code=303)
 
 
 @app.post("/comunicados/{cid}/remover")
 def comunicado_remover(request: Request, cid: int):
     if not _logado(request) or not _eh_coord(request):
-        return RedirectResponse("/colaborador", status_code=303)
+        return RedirectResponse("/comunicados", status_code=303)
     try:
         from sqlalchemy import text
         with _get_engine().begin() as con:
@@ -348,7 +348,7 @@ def comunicado_remover(request: Request, cid: int):
     except Exception:
         import logging
         logging.getLogger("uvicorn.error").exception("comunicado_remover")
-    return RedirectResponse("/colaborador?ok=Comunicado removido.#comunicados", status_code=303)
+    return RedirectResponse("/comunicados?ok=Comunicado removido.", status_code=303)
 
 
 @app.get("/gestao", response_class=HTMLResponse)

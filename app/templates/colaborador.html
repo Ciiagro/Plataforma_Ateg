@@ -19,7 +19,7 @@
 .cm:first-of-type{border-top:0;padding-top:4px}
 .cm-t{display:flex;align-items:center;gap:10px;justify-content:space-between}
 .cm h3{margin:0;font-size:15.5px;color:var(--verde)}
-.cm .dt{color:var(--mut);font-size:12.5px;white-space:nowrap;display:flex;align-items:center;gap:8px}
+.cm .cm-dt{color:var(--mut);font-size:12.5px;white-space:nowrap;display:flex;align-items:center;gap:8px}
 .novo{background:#e5251f;color:#fff;border-radius:999px;font-size:11px;font-weight:800;padding:2px 9px}
 .cm p{margin:5px 0 4px;white-space:pre-line;line-height:1.5;color:var(--ink)}
 .cm .por{display:flex;justify-content:space-between;align-items:center;color:var(--mut);font-size:12.5px}
@@ -51,23 +51,15 @@ a.fc:hover{transform:translateY(-2px);border-color:var(--ouro)}
   <section class="cx">
    <div class="cx-h"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 10v4h3l7 4V6L7 10z"/><path d="M17 9a4 4 0 0 1 0 6"/></svg></span><h2>Comunicados</h2>
     <a href="/comunicados" class="ver-t">Ver todos →</a>
-    {% if eh_coord %}<button type="button" id="novoCom" class="btn-novo">+ Novo comunicado</button>{% endif %}</div>
-   {% if eh_coord %}<form method="post" action="/comunicados" id="formCom" class="form-com" {% if not erro %}hidden{% endif %}>
-    <input name="titulo" maxlength="150" required placeholder="Título">
-    <textarea name="texto" maxlength="3000" required rows="3" placeholder="Texto do aviso"></textarea>
-    <label style="display:flex;align-items:center;gap:8px;margin:0 0 10px;font-weight:600;color:var(--verde)"><input type="checkbox" name="destaque" value="1" style="width:auto;margin:0"> Destacar no topo (faixa verde)</label>
-    <div style="display:flex;align-items:center;gap:12px"><button type="submit" class="btn-pub" style="width:auto;padding:11px 28px">Publicar</button>
-     <button type="button" id="cancCom" style="background:none;border:0;color:var(--mut);font:inherit;font-weight:600;cursor:pointer">Cancelar</button>
-     <span style="color:var(--mut);font-size:12.5px">Visível para todos os colaboradores logados.</span></div>
-   </form>{% endif %}
+    {% if eh_coord %}<a href="/comunicados#novo" class="btn-novo" style="text-decoration:none;font-weight:700;margin-left:8px">+ Novo comunicado</a>{% endif %}</div>
    {% if ok %}<div class="msg" style="background:#e4f4ea;color:#0c5232">{{ ok }}</div>{% endif %}
    {% if erro %}<div class="msg" style="background:#fde8e6;color:#b3261e">{{ erro }}</div>{% endif %}
    {% if comunicados %}
     {% for c in comunicados %}
     {% if c.destaque %}<div class="dest"><svg viewBox="0 0 24 24"><path d="M4 10v4h3l7 4V6L7 10z"/><path d="M17 9a4 4 0 0 1 0 6"/></svg>Comunicado destacado</div>{% endif %}
-    <article class="cm"><div class="cm-t"><h3>{{ c.titulo }}</h3><span class="dt">{{ c.data }}{% if c.novo %}<span class="novo">Novo</span>{% endif %}</span></div>
+    <article class="cm"><div class="cm-t"><h3>{{ c.titulo }}</h3><span class="cm-dt">{{ c.data }}{% if c.novo %}<span class="novo">Novo</span>{% endif %}</span></div>
      <p>{{ c.texto }}</p>
-     <div class="por"><span>{{ c.por }}</span>{% if eh_coord %}<form method="post" action="/comunicados/{{ c.id }}/remover" onsubmit="return confirm('Remover este comunicado?')"><button type="submit">Remover</button></form>{% endif %}</div></article>
+     <div class="por"><span>{{ c.por }}</span></div></article>
     {% endfor %}
    {% else %}<p style="color:var(--mut);margin:4px 0">Nenhum comunicado neste mês.</p>{% endif %}
    <a href="/comunicados" class="ver-t" style="display:inline-block;margin-top:10px">Ver comunicados anteriores →</a>
@@ -89,8 +81,6 @@ a.fc:hover{transform:translateY(-2px);border-color:var(--ouro)}
 <div class="onda" aria-hidden="true"></div>
 <script>
 (function(){var b=document.getElementById('verTodos'),m=document.getElementById('maisCom');
-var nb=document.getElementById('novoCom'),fm=document.getElementById('formCom'),cc=document.getElementById('cancCom');
-if(nb&&fm){nb.addEventListener('click',function(){fm.hidden=!fm.hidden;if(!fm.hidden){fm.querySelector('input').focus()}});if(cc)cc.addEventListener('click',function(){fm.hidden=true})}
 })();
 </script>
 {% endblock %}
