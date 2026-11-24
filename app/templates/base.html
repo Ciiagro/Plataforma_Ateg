@@ -200,7 +200,7 @@ a.cd:hover{filter:brightness(1.05)}
 <link rel="stylesheet" href="/img/lib/leaflet.css">
 </head>
 <body>
-{% block topo %}<header class="topo"><div class="in"><img src="/img/logo_faec_senar.png" alt="FAEC | SENAR Ceará"><span class="ateg">ATeG</span></div></header>{% endblock %}
+{% block topo %}<header class="topo"><div class="in"><img src="/img/logo_faec_senar.png" alt="FAEC | SENAR Ceará"><span class="ateg">ATeG</span>{% if usuario %}<a href="/sair" style="color:#fff;font-size:13px;text-decoration:none;white-space:nowrap">{{ usuario }} · Sair</a>{% endif %}</div></header>{% endblock %}
 <nav class="menu" aria-label="Menu principal"><div class="in">{% for href, nome in menu %}<a href="{{ href }}" class="{{ 'on' if atual == href else '' }}">{{ nome }}</a>{% endfor %}</div></nav>
 <main>{% block corpo %}{% endblock %}</main>
 <footer class="rodape"><div class="in">Plataforma da ATeG — SENAR-CE | Federação da Agricultura e Pecuária do Ceará (FAEC). Fonte dos dados: SisATeG. Dados agregados; informações individuais de produtores não são divulgadas.</div></footer>

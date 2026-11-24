@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block titulo %}Entrar{% endblock %}
+{% block corpo %}
+<div class="in"><section class="hero"><span class="traco"></span><h1 class="t">Acesso <em>restrito</em></h1>
+ <p class="lead">Entre com o mesmo login e senha do sistema de avaliação dos técnicos.</p></section>
+ <form method="post" action="/entrar" style="max-width:380px;background:#fff;border:1px solid var(--linha);border-radius:16px;box-shadow:var(--sombra);padding:24px;margin:0 0 40px">
+  <input type="hidden" name="next" value="{{ next }}">
+  <label style="display:block;font-weight:700;font-size:14px;margin-bottom:6px" for="login">Login</label>
+  <input id="login" name="login" autocomplete="username" required autofocus style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--linha);border-radius:10px;font:inherit;margin-bottom:14px">
+  <label style="display:block;font-weight:700;font-size:14px;margin-bottom:6px" for="senha">Senha</label>
+  <input id="senha" name="senha" type="password" autocomplete="current-password" required style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--linha);border-radius:10px;font:inherit;margin-bottom:16px">
+  {% if erro %}<p role="alert" style="color:#b3261e;font-weight:600;margin:0 0 14px">{{ erro }}</p>{% endif %}
+  <button type="submit" style="background:var(--ouro);color:#173324;border:0;border-radius:999px;padding:12px 26px;font:inherit;font-weight:800;cursor:pointer">Entrar</button>
+  <p style="color:var(--mut);font-size:13px;margin:14px 0 0">Primeiro acesso ou esqueceu a senha? Troque ou peça a redefinição no sistema de avaliação dos técnicos.</p>
+ </form></div>
+{% endblock %}

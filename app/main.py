@@ -4,8 +4,9 @@ import time
 from pathlib import Path
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import HTMLResponse
+from fastapi import FastAPI, Form, HTTPException, Request
+from fastapi.responses import HTMLResponse, RedirectResponse
+from starlette.middleware.sessions import SessionMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
@@ -21,13 +22,34 @@ app = FastAPI(title="Plataforma da ATeG")
 app.mount("/img", StaticFiles(directory=str(BASE / "static")), name="img")
 templates = Jinja2Templates(directory=str(BASE / "templates"))
 
+# ---- Login da área restrita: mesmos usuários e senhas do sistema de avaliação dos técnicos (tabela usuarios_supervisores) ----
+import hashlib
+_seg = os.environ.get("SESSION_SECRET") or hashlib.sha256(("portal-ateg|" + os.environ.get("REMOTE_DB_PASS", "dev")).encode()).hexdigest()
+app.add_middleware(SessionMiddleware, secret_key=_seg, session_cookie="portal_ateg", max_age=60 * 60 * 8, same_site="lax", https_only=bool(os.environ.get("VERCEL")))
+
+
+def _logado(request: Request):
+    return request.session.get("usuario")
+
+
+def _exige_login(request: Request):
+    """Para páginas: devolve um redirecionamento para a tela de entrada, ou None se já estiver logado."""
+    if _logado(request):
+        return None
+    return RedirectResponse("/entrar?next=" + request.url.path, status_code=303)
+
+
+def _next_seguro(n):
+    return n if n and n.startswith("/") and not n.startswith("//") else "/colaborador"
+
+
 MENU = [("/", "Início"), ("/conheca", "Conheça a ATeG"), ("/resultados", "Resultados e indicadores"),
         ("/conhecimento", "Conhecimento e inovação"), ("/agenda", "Agenda e oportunidades"),
         ("/colaborador", "Área do colaborador"), ("/gestao", "Gestão estratégica")]
 
 
 def _pg(request: Request, nome: str, **ctx):
-    return templates.TemplateResponse(request, nome, {"menu": MENU, "atual": request.url.path, "paineis": PAINEIS, "noticias": NOTICIAS, **ctx})
+    return templates.TemplateResponse(request, nome, {"menu": MENU, "atual": request.url.path, "paineis": PAINEIS, "noticias": NOTICIAS, "usuario": request.session.get("usuario"), **ctx})
 
 
 # ---- Números da página inicial (somente dados agregados, direto do banco do painel de visitas) ----
@@ -49,6 +71,18 @@ def _get_engine():
     return _engine
 
 
+def _tab_historico(con):
+    """Tabela com TODO o histórico (desde 2016): public.vw_visitas_anual. Se ela não existir, cai na mv_visitas/vw_visitas (só 2024 em diante)."""
+    from sqlalchemy import text
+    for t in ("public.vw_visitas_anual", "public.mv_visitas"):
+        try:
+            if con.execute(text("SELECT to_regclass(:t) IS NOT NULL"), {"t": t}).scalar():
+                return t
+        except Exception:
+            pass
+    return "public.vw_visitas"
+
+
 @app.get("/api/indicadores")
 def indicadores():
     """Totais da ATeG: propriedades assistidas, municípios, visitas e técnicos (ano atual e acumulado). Cache de 10 minutos."""
@@ -58,12 +92,7 @@ def indicadores():
         from sqlalchemy import text
         eng = _get_engine()
         with eng.connect() as con:
-            tab = "public.vw_visitas"
-            try:
-                if con.execute(text("SELECT to_regclass('public.mv_visitas') IS NOT NULL")).scalar():
-                    tab = "public.mv_visitas"
-            except Exception:
-                pass
+            tab = _tab_historico(con)
             ano = "dt_visita >= date_trunc('year', CURRENT_DATE)"
             r = con.execute(text(f"""SELECT
                 COUNT(DISTINCT id_propriedade), COUNT(DISTINCT municipio), COUNT(DISTINCT id_visita), COUNT(DISTINCT tecnico), COUNT(DISTINCT id_visita) FILTER (WHERE valida),
@@ -102,8 +131,10 @@ def _mes_add(ym, n):
 
 
 @app.get("/api/gestao")
-def api_gestao():
+def api_gestao(request: Request):
     """Visão macro das cadeias (receita bruta, despesa direta, margem bruta), últimos 12 meses fechados x 12 anteriores."""
+    if not request.session.get("usuario"):
+        raise HTTPException(401, "Faça login para ver esta área")
     if not GESTAO_ATIVA:
         raise HTTPException(403, "Área restrita")
     if _cache_gestao["v"] is not None and time.time() - _cache_gestao["t"] < 600:
@@ -177,13 +208,74 @@ def agenda(request: Request):
     return _pg(request, "agenda.html", itens=itens, exemplo=exemplo, tipos=_TIPOS_AG)
 
 
+@app.get("/entrar", response_class=HTMLResponse)
+def entrar_tela(request: Request, next: str = "/colaborador"):
+    if _logado(request):
+        return RedirectResponse(_next_seguro(next), status_code=303)
+    return _pg(request, "login.html", erro=None, next=_next_seguro(next))
+
+
+@app.post("/entrar", response_class=HTMLResponse)
+def entrar(request: Request, login: str = Form(...), senha: str = Form(...), next: str = Form("/colaborador")):
+    import bcrypt
+    from sqlalchemy import text
+    login = (login or "").strip()
+    erro = None
+    try:
+        with _get_engine().connect() as con:
+            u = con.execute(text("SELECT supervisor, login, senha_hash, tipo FROM public.usuarios_supervisores WHERE login = :l"), {"l": login}).first()
+        if u and bcrypt.checkpw(senha.encode("utf-8"), u[2].encode("utf-8")):
+            request.session["usuario"] = u[0]
+            request.session["login"] = u[1]
+            request.session["tipo"] = u[3]
+            return RedirectResponse(_next_seguro(next), status_code=303)
+        time.sleep(0.8)
+        erro = "Login ou senha inválidos."
+    except Exception:
+        import logging
+        logging.getLogger("uvicorn.error").exception("entrar")
+        erro = "Não foi possível verificar o acesso agora. Tente novamente em instantes."
+    return _pg(request, "login.html", erro=erro, next=_next_seguro(next))
+
+
+AVALIACAO_URL = os.environ.get("AVALIACAO_URL", "https://avaliacao-tecnicos-ateg.senarce.org.br").rstrip("/")
+
+
+@app.get("/ir/avaliacao")
+def ir_avaliacao(request: Request):
+    """Abre o sistema de avaliação já logado: manda um link assinado (vale 2 min) com o login da pessoa."""
+    import base64, hashlib, hmac, json as _json
+    if not request.session.get("usuario"):
+        return RedirectResponse("/entrar?next=/ir/avaliacao", status_code=303)
+    login = request.session.get("login")
+    segredo = os.environ.get("SSO_SECRET", "")
+    if not login or not segredo:
+        request.session.clear()
+        return RedirectResponse("/entrar?next=/ir/avaliacao" if segredo else AVALIACAO_URL + "/login", status_code=303)
+    corpo = base64.urlsafe_b64encode(_json.dumps({"l": login, "t": time.time()}).encode()).decode().rstrip("=")
+    ass = hmac.new(segredo.encode(), corpo.encode(), hashlib.sha256).hexdigest()
+    return RedirectResponse(f"{AVALIACAO_URL}/sso?t={corpo}.{ass}", status_code=303)
+
+
+@app.get("/sair")
+def sair(request: Request):
+    request.session.clear()
+    return RedirectResponse("/", status_code=303)
+
+
 @app.get("/colaborador", response_class=HTMLResponse)
 def colaborador(request: Request):
+    r = _exige_login(request)
+    if r:
+        return r
     return _pg(request, "colaborador.html")
 
 
 @app.get("/gestao", response_class=HTMLResponse)
 def gestao(request: Request):
+    r = _exige_login(request)
+    if r:
+        return r
     if GESTAO_ATIVA:
         return _pg(request, "gestao.html")
     titulo, sub, restrito, itens = _EM_BREVE["/gestao"]
@@ -232,12 +324,7 @@ def cadeias_contagem():
     try:
         from sqlalchemy import text
         with _get_engine().connect() as con:
-            tab = "public.vw_visitas"
-            try:
-                if con.execute(text("SELECT to_regclass('public.mv_visitas') IS NOT NULL")).scalar():
-                    tab = "public.mv_visitas"
-            except Exception:
-                pass
+            tab = _tab_historico(con)
             cc = _contagem_cadeias(con, tab)
             v = {"outras": cc.pop("_outras"), "lista": cc.pop("_lista"), "cadeias": cc}
     except Exception:
@@ -262,12 +349,7 @@ def destaques():
     try:
         from sqlalchemy import text
         with _get_engine().connect() as con:
-            tab = "public.vw_visitas"
-            try:
-                if con.execute(text("SELECT to_regclass('public.mv_visitas') IS NOT NULL")).scalar():
-                    tab = "public.mv_visitas"
-            except Exception:
-                pass
+            tab = _tab_historico(con)
             r = con.execute(text(f"""SELECT
                 COUNT(DISTINCT id_visita) FILTER (WHERE dt_visita >= date_trunc('year', CURRENT_DATE) AND dt_visita <= CURRENT_DATE),
                 COUNT(DISTINCT id_visita) FILTER (WHERE dt_visita >= date_trunc('year', CURRENT_DATE) - interval '1 year'
@@ -318,12 +400,7 @@ def mapa_atendimento():
     try:
         from sqlalchemy import text
         with _get_engine().connect() as con:
-            tab = "public.vw_visitas"
-            try:
-                if con.execute(text("SELECT to_regclass('public.mv_visitas') IS NOT NULL")).scalar():
-                    tab = "public.mv_visitas"
-            except Exception:
-                pass
+            tab = _tab_historico(con)
             rows = con.execute(text(f"SELECT municipio, COUNT(DISTINCT id_propriedade) FROM {tab} WHERE municipio IS NOT NULL GROUP BY 1")).all()
     except Exception:
         raise HTTPException(503, "Mapa indisponível")
