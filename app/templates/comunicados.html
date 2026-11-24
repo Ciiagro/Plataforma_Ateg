@@ -15,23 +15,23 @@
 .cp-novo h2{margin:0 0 10px;font-size:18px;color:var(--verde)}
 .cp-novo input[type=text],.cp-novo textarea{width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid var(--linha);border-radius:10px;font:inherit;margin-bottom:10px}
 .cp-novo textarea{resize:vertical}
-.cp-mes{display:flex;align-items:center;gap:12px;margin:26px 0 10px;font-size:17px;font-weight:800;color:var(--verde)}
+.cp-mes{display:flex;align-items:center;gap:12px;margin:18px 0 8px;font-size:17px;font-weight:800;color:var(--verde)}
 .cp-mes small{font-weight:600;color:var(--mut);font-size:12.5px}.cp-mes::after{content:"";flex:1;height:1px;background:#cfe0d5}
-.cp-lista{display:grid;gap:10px}
-.cp-item{background:#fff;border:1px solid var(--linha);border-left:4px solid var(--verde);border-radius:14px;box-shadow:var(--sombra);padding:14px 18px}
+.cp-lista{display:grid;gap:6px}
+.cp-item{background:#fff;border:1px solid var(--linha);border-left:4px solid var(--verde);border-radius:12px;padding:9px 14px}
 .cp-item.dest{border-left-color:var(--ouro);background:linear-gradient(90deg,#fffaf0,#fff 40%)}
-.cp-data{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px}.cp-h{margin:0;font-size:17px;color:var(--verde);overflow-wrap:anywhere}
-.cp-t{display:flex;align-items:flex-start;gap:12px;justify-content:space-between}
-.cp-t h3{margin:0;font-size:16px;color:var(--verde);overflow-wrap:anywhere}
-.cp-chip{display:inline-flex;align-items:center;gap:6px;background:#eef5f0;color:var(--mut);border-radius:999px;font-size:12.5px;padding:3px 11px;white-space:nowrap;flex:none}
-.cp-chip svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.cp-novo-b{background:#e5251f;color:#fff;border-radius:999px;font-size:11px;font-weight:800;padding:2px 9px}
-.cp-dest-b{background:#fff3cc;color:#7a5a00;border-radius:999px;font-size:11px;font-weight:800;padding:2px 9px}
-.cp-item p{margin:4px 0 10px;white-space:pre-line;line-height:1.5;overflow-wrap:anywhere}
-.cp-rod{display:flex;align-items:center;justify-content:space-between;gap:10px;color:var(--mut);font-size:12.5px}
-.cp-rod form{margin:0}
-.cp-rm{background:none;border:1px solid #f1c9c5;color:#b3261e;border-radius:999px;font:inherit;font-size:12.5px;font-weight:600;padding:3px 12px;cursor:pointer}
+.cp-l1{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.cp-chip{display:inline-flex;align-items:center;gap:5px;background:#eef5f0;color:var(--mut);border-radius:999px;font-size:12px;padding:2px 10px;white-space:nowrap;flex:none}
+.cp-chip svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.cp-h{margin:0;font-size:15.5px;color:var(--verde);overflow-wrap:anywhere}
+.cp-novo-b{background:#e5251f;color:#fff;border-radius:999px;font-size:10.5px;font-weight:800;padding:1px 8px}
+.cp-dest-b{background:#fff3cc;color:#7a5a00;border-radius:999px;font-size:10.5px;font-weight:800;padding:1px 8px}
+.cp-l2{margin:3px 0 0;white-space:pre-line;line-height:1.4;overflow-wrap:anywhere;font-size:14px}
+.cp-por{color:var(--mut);font-size:12px;white-space:nowrap}
+.cp-rm{margin-left:auto;background:none;border:1px solid #f1c9c5;color:#b3261e;border-radius:999px;font:inherit;font-size:12px;font-weight:600;padding:1px 10px;cursor:pointer}
 .cp-rm:hover{background:#fde8e6}
+.cp-rmf{margin:0 0 0 auto}
+.cp-sel{padding:9px 14px;border:1px solid var(--linha);border-radius:999px;font:inherit;background:#fff;font-weight:600;color:var(--verde)}
 .cp-vazio{display:none;color:var(--mut);padding:16px 0}
 </style>
 <div class="in" style="padding-bottom:50px">
@@ -52,25 +52,27 @@
   </form></section>{% endif %}
 
  {% if comunicados %}
- <div class="cp-busca"><input type="search" id="cpBusca" placeholder="Buscar comunicado…" aria-label="Buscar comunicado"><span id="cpConta">{{ comunicados|length }} comunicado{{ '' if comunicados|length == 1 else 's' }}</span></div>
+ {% set ns2 = namespace(lista=[]) %}{% for c in comunicados %}{% if c.mes not in ns2.lista %}{% set ns2.lista = ns2.lista + [c.mes] %}{% endif %}{% endfor %}
+ <div class="cp-busca"><select id="cpMes" class="cp-sel" aria-label="Mês">{% for m in ns2.lista %}<option value="{{ m }}"{% if loop.first %} selected{% endif %}>{{ m }}</option>{% endfor %}<option value="">Todos os meses</option></select>
+  <input type="search" id="cpBusca" placeholder="Buscar comunicado…" aria-label="Buscar comunicado"><span id="cpConta"></span></div>
  {% set ns = namespace(mes='') %}
  {% for c in comunicados %}
-  {% if c.mes != ns.mes %}{% if ns.mes %}</div>{% endif %}<div class="cp-mes" data-mes>{{ c.mes }}</div><div class="cp-lista">{% set ns.mes = c.mes %}{% endif %}
-  <article class="cp-item{% if c.destaque %} dest{% endif %}" data-txt="{{ (c.titulo ~ ' ' ~ c.texto ~ ' ' ~ c.por)|lower }}">
-   <div class="cp-data"><span class="cp-chip"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>{{ c.data }}</span>{% if c.novo %}<span class="cp-novo-b">Novo</span>{% endif %}{% if c.destaque %}<span class="cp-dest-b">Destaque</span>{% endif %}</div>
-   <h3 class="cp-h">{{ c.titulo }}</h3>
-   <p>{{ c.texto }}</p>
-   <div class="cp-rod"><span>Publicado por {{ c.por }}</span>{% if eh_coord %}<form method="post" action="/comunicados/{{ c.id }}/remover" onsubmit="return confirm('Remover este comunicado?')"><button type="submit" class="cp-rm">Remover</button></form>{% endif %}</div>
+  {% if c.mes != ns.mes %}{% if ns.mes %}</div>{% endif %}<div class="cp-mes" data-cab="{{ c.mes }}">{{ c.mes }}</div><div class="cp-lista">{% set ns.mes = c.mes %}{% endif %}
+  <article class="cp-item{% if c.destaque %} dest{% endif %}" data-mes="{{ c.mes }}" data-txt="{{ (c.titulo ~ ' ' ~ c.texto ~ ' ' ~ c.por)|lower }}">
+   <div class="cp-l1"><span class="cp-chip"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>{{ c.data }}</span>
+    <h3 class="cp-h">{{ c.titulo }}</h3>{% if c.novo %}<span class="cp-novo-b">Novo</span>{% endif %}{% if c.destaque %}<span class="cp-dest-b">Destaque</span>{% endif %}
+    {% if eh_coord %}<form method="post" action="/comunicados/{{ c.id }}/remover" class="cp-rmf" onsubmit="return confirm('Remover este comunicado?')"><button type="submit" class="cp-rm">Remover</button></form>{% endif %}</div>
+   <p class="cp-l2">{{ c.texto }} <span class="cp-por">— {{ c.por }}</span></p>
   </article>
  {% endfor %}</div>
  <p class="cp-vazio" id="cpVazio">Nenhum comunicado encontrado para essa busca.</p>
  {% else %}<p style="color:var(--mut);margin-top:20px">Nenhum comunicado publicado ainda.</p>{% endif %}
 </div>
 <script>
-(function(){var q=document.getElementById('cpBusca');if(!q)return;var itens=[].slice.call(document.querySelectorAll('.cp-item')),meses=[].slice.call(document.querySelectorAll('[data-mes]')),v=document.getElementById('cpVazio'),n=document.getElementById('cpConta');
-function f(){var t=q.value.trim().toLowerCase(),c=0;itens.forEach(function(e){var ok=!t||e.dataset.txt.indexOf(t)>-1;e.style.display=ok?'':'none';if(ok)c++});
-meses.forEach(function(m){var l=m.nextElementSibling,vis=l&&[].some.call(l.children,function(x){return x.style.display!=='none'});m.style.display=vis?'':'none';if(l)l.style.display=vis?'':'none'});
-v.style.display=c?'none':'block';n.textContent=c+' comunicado'+(c===1?'':'s')}
-q.addEventListener('input',f)})();
+(function(){var q=document.getElementById('cpBusca');if(!q)return;var sel=document.getElementById('cpMes'),itens=[].slice.call(document.querySelectorAll('.cp-item')),cabs=[].slice.call(document.querySelectorAll('[data-cab]')),v=document.getElementById('cpVazio'),n=document.getElementById('cpConta');
+function f(){var t=q.value.trim().toLowerCase(),m=sel.value,c=0;itens.forEach(function(e){var ok=(!m||e.dataset.mes===m)&&(!t||e.dataset.txt.indexOf(t)>-1);e.style.display=ok?'':'none';if(ok)c++});
+cabs.forEach(function(h){var l=h.nextElementSibling,vis=l&&[].some.call(l.children,function(x){return x.style.display!=='none'});h.style.display=(vis&&!m)?'':'none';if(l)l.style.display=vis?'':'none'});
+if(v)v.style.display=c?'none':'block';n.textContent=c+' comunicado'+(c===1?'':'s')}
+q.addEventListener('input',f);sel.addEventListener('change',f);f()})();
 </script>
 {% endblock %}
