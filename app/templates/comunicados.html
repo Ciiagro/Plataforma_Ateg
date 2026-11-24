@@ -20,13 +20,14 @@
 .cp-lista{display:grid;gap:10px}
 .cp-item{background:#fff;border:1px solid var(--linha);border-left:4px solid var(--verde);border-radius:14px;box-shadow:var(--sombra);padding:14px 18px}
 .cp-item.dest{border-left-color:var(--ouro);background:linear-gradient(90deg,#fffaf0,#fff 40%)}
+.cp-data{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px}.cp-h{margin:0;font-size:17px;color:var(--verde);overflow-wrap:anywhere}
 .cp-t{display:flex;align-items:flex-start;gap:12px;justify-content:space-between}
 .cp-t h3{margin:0;font-size:16px;color:var(--verde);overflow-wrap:anywhere}
 .cp-chip{display:inline-flex;align-items:center;gap:6px;background:#eef5f0;color:var(--mut);border-radius:999px;font-size:12.5px;padding:3px 11px;white-space:nowrap;flex:none}
 .cp-chip svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .cp-novo-b{background:#e5251f;color:#fff;border-radius:999px;font-size:11px;font-weight:800;padding:2px 9px}
 .cp-dest-b{background:#fff3cc;color:#7a5a00;border-radius:999px;font-size:11px;font-weight:800;padding:2px 9px}
-.cp-item p{margin:6px 0 8px;white-space:pre-line;line-height:1.5;overflow-wrap:anywhere}
+.cp-item p{margin:4px 0 10px;white-space:pre-line;line-height:1.5;overflow-wrap:anywhere}
 .cp-rod{display:flex;align-items:center;justify-content:space-between;gap:10px;color:var(--mut);font-size:12.5px}
 .cp-rod form{margin:0}
 .cp-rm{background:none;border:1px solid #f1c9c5;color:#b3261e;border-radius:999px;font:inherit;font-size:12.5px;font-weight:600;padding:3px 12px;cursor:pointer}
@@ -56,9 +57,8 @@
  {% for c in comunicados %}
   {% if c.mes != ns.mes %}{% if ns.mes %}</div>{% endif %}<div class="cp-mes" data-mes>{{ c.mes }}</div><div class="cp-lista">{% set ns.mes = c.mes %}{% endif %}
   <article class="cp-item{% if c.destaque %} dest{% endif %}" data-txt="{{ (c.titulo ~ ' ' ~ c.texto ~ ' ' ~ c.por)|lower }}">
-   <div class="cp-t"><h3>{{ c.titulo }}</h3>
-    <span style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end">{% if c.destaque %}<span class="cp-dest-b">Destaque</span>{% endif %}{% if c.novo %}<span class="cp-novo-b">Novo</span>{% endif %}
-     <span class="cp-chip"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>{{ c.data }}</span></span></div>
+   <div class="cp-data"><span class="cp-chip"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>{{ c.data }}</span>{% if c.novo %}<span class="cp-novo-b">Novo</span>{% endif %}{% if c.destaque %}<span class="cp-dest-b">Destaque</span>{% endif %}</div>
+   <h3 class="cp-h">{{ c.titulo }}</h3>
    <p>{{ c.texto }}</p>
    <div class="cp-rod"><span>Publicado por {{ c.por }}</span>{% if eh_coord %}<form method="post" action="/comunicados/{{ c.id }}/remover" onsubmit="return confirm('Remover este comunicado?')"><button type="submit" class="cp-rm">Remover</button></form>{% endif %}</div>
   </article>
