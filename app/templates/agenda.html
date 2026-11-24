@@ -1,24 +1,65 @@
 {% extends "base.html" %}
 {% block titulo %}Agenda e oportunidades{% endblock %}
 {% block corpo %}
-<div class="in"><section class="hero"><span class="traco"></span><h1 class="t">Agenda e <em>oportunidades</em></h1>
- <p class="lead">Cursos, oficinas, dias de campo, eventos e oportunidades de estágio e pesquisa ligados à ATeG, para produtores, técnicos e estudantes.</p></section>
+<style>
+.ag-hero{position:relative;margin-top:14px;border-radius:22px;overflow:hidden;background:#e9f3ec url('/img/hero.jpg') center right/cover no-repeat;min-height:clamp(190px,15vw,250px);display:flex;align-items:center;box-shadow:var(--sombra)}
+.ag-hero::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(246,249,247,.97) 0%,rgba(246,249,247,.93) 46%,rgba(246,249,247,.35) 72%,rgba(246,249,247,0) 100%)}
+.ag-hi{position:relative;display:flex;align-items:center;gap:22px;padding:24px clamp(18px,2.4vw,34px)}
+.ag-ic{flex:none;width:92px;height:92px;border-radius:24px;background:#dff0e5;display:grid;place-items:center}
+.ag-ic svg{width:54px;height:54px;stroke:var(--verde);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ag-hi .bar{width:3px;align-self:stretch;background:var(--ouro);border-radius:2px}
+.ag-hi h1{margin:0;font-size:clamp(34px,4vw,56px);line-height:1.02;color:var(--verde)}.ag-hi h1 em{font-style:normal;color:var(--ouro)}
+.ag-hi p{margin:10px 0 0;max-width:560px;font-size:clamp(15px,1.3vw,18px);color:var(--ink);line-height:1.4}
+.ag-sec{margin-top:26px}
+.ag-eb{display:flex;align-items:center;gap:12px;font-weight:800;font-size:18px;color:var(--verde)}.ag-eb::before{content:"";width:38px;height:5px;border-radius:3px;background:var(--ouro)}
+.ag-st{display:flex;align-items:center;gap:10px;margin:12px 0 14px;font-size:20px;color:var(--verde)}.ag-st svg{width:26px;height:26px;stroke:var(--verde2);fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.ag-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.ag-c{display:flex;align-items:center;gap:16px;background:#fff;border-radius:18px;box-shadow:var(--sombra);padding:18px 20px}
+.ag-c .ci{flex:none;width:68px;height:68px;border-radius:50%;background:#e4f4ea;display:grid;place-items:center}
+.ag-c .ci svg{width:34px;height:34px;stroke:var(--verde2);fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.ag-c h3{margin:0 0 4px;font-size:19px;color:var(--verde)}.ag-c p{margin:0;font-size:14px;color:var(--mut);line-height:1.35}.ag-c>.ch{margin-left:auto;flex:none;width:22px;height:22px;stroke:var(--verde);fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.ag-aviso{display:flex;align-items:center;gap:14px;background:#fff1c2;border-radius:14px;padding:12px 18px;font-size:14px;color:var(--ink);line-height:1.4}
+.ag-aviso svg{flex:none;width:34px;height:34px;stroke:var(--verde);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ag-f{margin:14px 0}.ag-f select{appearance:none;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230c5232' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center/16px;border:0;border-radius:12px;box-shadow:var(--sombra);padding:11px 38px 11px 16px;font:inherit;font-weight:700;color:var(--verde);cursor:pointer}
+.ag-l{display:grid;gap:12px}
+.ag-e{display:flex;align-items:stretch;background:#fff;border-radius:16px;box-shadow:var(--sombra);overflow:hidden}
+.ag-d{flex:none;width:92px;background:linear-gradient(180deg,#0b5a35,#0c5232);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 6px}
+.ag-d b{font-size:32px;line-height:1}.ag-d span{font-weight:800;font-size:14px;letter-spacing:.5px}.ag-d small{font-size:12px;opacity:.9}
+.ag-b{flex:1;min-width:0;padding:14px 20px}
+.ag-tg{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px}
+.ag-tg i{font-style:normal;font-weight:800;font-size:12.5px;background:#e4f4ea;color:var(--verde);border-radius:999px;padding:3px 12px}.ag-tg i.ex{background:#fdeeb6;color:#8a5a00}
+.ag-b h3{margin:0;font-size:20px;color:var(--verde)}.ag-b p{margin:4px 0 0;font-size:14px;color:var(--mut)}
+.ag-loc{display:flex;align-items:center;gap:6px;margin-top:6px;font-size:13.5px;color:var(--ink)}.ag-loc svg{width:16px;height:16px;stroke:var(--verde2);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ag-a{display:flex;align-items:center;gap:8px;padding:0 24px;font-weight:800;color:var(--verde);white-space:nowrap;text-decoration:none}
+.ag-a svg{width:20px;height:20px;stroke:var(--verde);fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+a.ag-a{background:var(--ouro);color:#173324;margin:12px;border-radius:999px;padding:0 22px}
+.ag-vazio{background:#fff;border-radius:16px;box-shadow:var(--sombra);padding:22px;color:var(--mut)}
+.ag-wave{display:block;width:100%;height:80px;margin-top:22px;border-radius:0 0 22px 22px}
+@media(max-width:900px){.ag-cards{grid-template-columns:1fr}.ag-hi{gap:14px}.ag-ic{width:64px;height:64px;border-radius:18px}.ag-ic svg{width:38px;height:38px}.ag-hi .bar{display:none}.ag-e{flex-wrap:wrap}.ag-a{padding:0 20px 14px;width:100%}.ag-d{width:76px}}
+</style>
+<div class="in">
+ <section class="ag-hero"><div class="ag-hi"><span class="ag-ic"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4M8 14h.1M12 14h.1M16 14h.1M8 17h.1M12 17h.1"/></svg></span><span class="bar"></span>
+  <div><h1>Agenda e <em>oportunidades</em></h1><p>Cursos, oficinas, dias de campo, eventos e oportunidades de estágio e pesquisa ligados à ATeG, para produtores, técnicos e estudantes.</p></div></div></section>
 
- <section class="bloco"><div class="eyebrow">O que você encontra aqui</div><h2 class="s">Calendário institucional</h2>
-  <div class="acessos">
-   <div class="acc"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 19V8l8-4 8 4v11M9 19v-6h6v6"/></svg></span><div><h3>Cursos e oficinas</h3><p>Capacitações da Formação Profissional Rural e oficinas de gestão e de produção.</p></div></div>
-   <div class="acc"><span class="ic"><svg viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></span><div><h3>Dias de campo</h3><p>Demonstrações práticas nas propriedades, com técnicos e produtores.</p></div></div>
-   <div class="acc"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.9 3.1-6.5 7-6.5s7 2.6 7 6.5"/></svg></span><div><h3>Oportunidades</h3><p>Vagas de estágio, pesquisa e parcerias com instituições de ensino.</p></div></div>
+ <section class="ag-sec"><div class="ag-eb">O que você encontra aqui</div>
+  <h2 class="ag-st"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Calendário institucional</h2>
+  <div class="ag-cards">
+   <div class="ag-c"><span class="ci"><svg viewBox="0 0 24 24"><path d="M4 19V8l8-4 8 4v11M9 19v-6h6v6"/></svg></span><div><h3>Cursos e oficinas</h3><p>Capacitações da Formação Profissional Rural e oficinas de gestão e de produção.</p></div><svg class="ch" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></div>
+   <div class="ag-c"><span class="ci"><svg viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></span><div><h3>Dias de campo</h3><p>Demonstrações práticas nas propriedades, com técnicos e produtores.</p></div><svg class="ch" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></div>
+   <div class="ag-c"><span class="ci"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5M17 11a2.7 2.7 0 1 0 0-5.4M21 19c0-2.4-1.5-4-3.6-4.6"/></svg></span><div><h3>Oportunidades</h3><p>Vagas de estágio, pesquisa e parcerias com instituições de ensino.</p></div><svg class="ch" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></div>
   </div></section>
 
- <section class="bloco"><div class="eyebrow">Próximas datas</div><h2 class="s">Agenda</h2>
-  {% if exemplo %}<div class="avisoex"><b>Modelo de como a agenda ficará.</b> Os itens abaixo são exemplos ilustrativos, não são eventos reais. Quando houver datas confirmadas, elas substituem estes exemplos.</div>{% endif %}
-  <div class="filtros"><select id="ft"><option value="">Todos os tipos</option>{% for x in tipos %}<option>{{ x }}</option>{% endfor %}</select></div>
-  <div class="agl" id="ags">{% for e in itens %}
-   <div class="ev{% if exemplo %} ex{% endif %}" data-t="{{ e.tipo }}"><div class="dt"><b>{{ e.dia }}</b><span>{{ e.mes }}</span><small>{{ e.ano }}</small></div>
-    <div class="evt"><span class="chip">{{ e.tipo }}</span>{% if exemplo %}<span class="chip exch">Exemplo</span>{% endif %}<h3>{{ e.titulo }}</h3><p>{{ e.descricao }}</p><div class="evm">{{ e.local }}</div></div>
-    {% if e.url %}<a class="btn" href="{{ e.url }}" target="_blank" rel="noopener">Inscrever-se →</a>{% else %}<span class="em">{% if exemplo %}Inscrição em breve{% else %}Informações em breve{% endif %}</span>{% endif %}</div>
-  {% else %}<p class="lead">Nenhuma data programada no momento.</p>{% endfor %}</div>
-  <script>(function(){var t=document.getElementById('ft');t.onchange=function(){document.querySelectorAll('#ags .ev').forEach(function(e){e.style.display=(!t.value||e.dataset.t==t.value)?'':'none'})}})();</script>
- </section></div>
+ <section class="ag-sec"><div class="ag-eb">Próximas datas</div>
+  <h2 class="ag-st"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4M8 14h.1M12 14h.1M16 14h.1"/></svg>Agenda</h2>
+  {% if exemplo %}<div class="ag-aviso"><svg viewBox="0 0 24 24"><path d="M3 11v3a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1zM15 9a4 4 0 0 1 0 6M18 6a8 8 0 0 1 0 12"/></svg><span><b>Modelo de como a agenda ficará.</b> Os itens abaixo são exemplos ilustrativos, não são eventos reais. Quando houver datas confirmadas, elas substituem estes exemplos.</span></div>{% endif %}
+  <div class="ag-f"><select id="ft" aria-label="Filtrar por tipo"><option value="">Todos os tipos</option>{% for x in tipos %}<option>{{ x }}</option>{% endfor %}</select></div>
+  <div class="ag-l" id="ags">{% for e in itens %}
+   <div class="ag-e" data-t="{{ e.tipo }}"><div class="ag-d"><b>{{ e.dia }}</b><span>{{ e.mes }}</span><small>{{ e.ano }}</small></div>
+    <div class="ag-b"><div class="ag-tg"><i>{{ e.tipo }}</i>{% if exemplo %}<i class="ex">Exemplo</i>{% endif %}</div><h3>{{ e.titulo }}</h3><p>{{ e.descricao }}</p><div class="ag-loc"><svg viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>{{ e.local }}</div></div>
+    {% if e.url %}<a class="ag-a" href="{{ e.url }}" target="_blank" rel="noopener">Inscrever-se <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></a>{% else %}<span class="ag-a">{% if exemplo %}Inscrição em breve{% else %}Informações em breve{% endif %}<svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></span>{% endif %}</div>
+  {% else %}<p class="ag-vazio">Nenhuma data programada no momento.</p>{% endfor %}</div>
+  <script>(function(){var t=document.getElementById('ft');t.onchange=function(){document.querySelectorAll('#ags .ag-e').forEach(function(e){e.style.display=(!t.value||e.dataset.t==t.value)?'':'none'})}})();</script>
+ </section>
+ <svg class="ag-wave" viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0 50C320 14 640 70 960 50s360-30 480-34v64H0z" fill="#0c5232"/><path d="M0 34C320 4 660 56 980 40s330-26 460-28" fill="none" stroke="#f5b800" stroke-width="5"/><path d="M0 64C360 36 720 76 1040 62s260-14 400-18v36H0z" fill="#2ba35a" opacity=".55"/></svg>
+</div>
 {% endblock %}
