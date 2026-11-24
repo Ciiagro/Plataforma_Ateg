@@ -1,14 +1,26 @@
 {% extends "base.html" %}
 {% block titulo %}Conheça a ATeG{% endblock %}
 {% block corpo %}
-<div class="in"><section class="hero"><span class="traco"></span><h1 class="t">Conheça a <em>ATeG</em></h1>
- <p class="lead">A Assistência Técnica e Gerencial (ATeG) é um programa do Sistema CNA/SENAR, executado no Ceará pelo SENAR-CE e pela FAEC. Técnicos de campo acompanham a propriedade rural, de forma gratuita, para melhorar a produção, a gestão e a renda do produtor.</p></section>
- <section class="bloco"><div class="tres">
-  <div class="card"><h3>O que é</h3><p>Um acompanhamento técnico e gerencial individualizado: o técnico visita a propriedade, identifica gargalos, propõe melhorias e orienta o produtor na produção, na gestão e na comercialização.</p></div>
-  <div class="card"><h3>Como funciona</h3><p>Visitas mensais por cerca de 24 meses, em cinco etapas: do diagnóstico da propriedade à avaliação dos resultados. Veja os detalhes abaixo.</p></div>
-  <div class="card"><h3>Quanto custa</h3><p>É gratuita para o produtor rural. O atendimento é financiado pelo Sistema CNA/SENAR.</p></div>
- </div></section>
- <section class="bloco"><div class="eyebrow">Metodologia</div><h2 class="s">Como funciona o acompanhamento</h2>
+<style>
+.cg-hero{position:relative;padding:26px 0 0}
+.cg-hero .tx{max-width:640px;position:relative;z-index:2}
+.cg-hero .tx p{font-size:15.5px;line-height:1.55;margin:10px 0 0;color:var(--ink)}
+.cg-foto{position:absolute;right:0;top:0;bottom:0;width:58%;z-index:0;background:#dbe9df url(/img/bovino_0.jpg) center 35%/cover;border-radius:0 0 0 24px;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 45%);mask-image:linear-gradient(90deg,transparent 0,#000 45%)}
+.cg-faixa{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;position:relative;z-index:2;margin:26px 0 8px}
+.cg{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--linha);border-radius:16px;box-shadow:var(--sombra);padding:14px 16px}
+.cg .ic{flex:none;width:52px;height:52px;border-radius:50%;background:var(--verde);color:#fff;display:grid;place-items:center}
+.cg .ic svg{width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.cg h3{margin:0 0 3px;font-size:16px;color:var(--verde)}.cg p{margin:0;font-size:12.8px;line-height:1.4;color:var(--ink)}
+.met-t{display:flex;gap:12px;align-items:stretch;margin-bottom:6px}.met-t .barra{width:4px;border-radius:3px;background:var(--verde);flex:none}
+.met-t h2{margin:0;font-size:32px;color:var(--verde);line-height:1.1}.met-t h2 small{display:block;font-size:19px;font-weight:600;color:var(--ink);margin-top:3px}
+@media(max-width:1000px){.cg-faixa{grid-template-columns:repeat(2,minmax(0,1fr))}.cg-foto{width:100%;opacity:.25}}
+@media(max-width:600px){.cg-faixa{grid-template-columns:1fr}}
+</style>
+<div class="in"><section class="cg-hero"><div class="cg-foto" role="img" aria-label="Gado em pastagem no Ceará"></div>
+ <div class="tx"><span class="traco"></span><h1 class="t">Conheça a <em>ATeG</em></h1>
+ <p>A Assistência Técnica e Gerencial (ATeG) é um programa do Sistema CNA/SENAR, executado no Ceará pelo SENAR-CE e pela FAEC. Técnicos de campo acompanham a propriedade rural, de forma gratuita, para melhorar a produção, a gestão e a renda do produtor.</p></div>
+ <div class="cg-faixa"><div class="cg"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3.5 2.7-5.5 6-5.5s6 2 6 5.5M15 14.8c3 0 5 1.6 5 4.7"/></svg></span><div><h3>O que é</h3><p>Um acompanhamento técnico e gerencial individualizado.</p></div></div><div class="cg"><span class="ic"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4M8 14h2M14 14h2M8 17h2"/></svg></span><div><h3>Como funciona</h3><p>Visitas mensais por cerca de 24 meses, em cinco etapas.</p></div></div><div class="cg"><span class="ic"><svg viewBox="0 0 24 24"><ellipse cx="10" cy="7" rx="6" ry="2.6"/><path d="M4 7v5c0 1.4 2.7 2.6 6 2.6M4 12v5c0 1.4 2.7 2.6 6 2.6"/><circle cx="17" cy="16" r="4.2"/><path d="M17 14v4M15.6 15.3h2.2a.9.9 0 0 1 0 1.7h-1.6a.9.9 0 0 0 0 1.7h2.2"/></svg></span><div><h3>Quanto custa</h3><p>É gratuita para o produtor rural.</p></div></div><div class="cg"><span class="ic"><svg viewBox="0 0 24 24"><path d="M3 11l4-3 4 1 3-2 4 3 3-1v6l-5 4-3-1-3 1-4-3-3-2z"/><path d="M9 14l2 2M12 13l2 2"/></svg></span><div><h3>Quem realiza</h3><p>O atendimento é financiado pelo Sistema CNA/SENAR.</p></div></div></div></section>
+ <section class="bloco"><div class="met-t"><span class="barra"></span><h2>Metodologia<small>Como funciona o acompanhamento</small></h2></div>
   <p class="lead" style="font-size:14px">A assistência dura, em geral, 24 meses (podendo variar em algumas cadeias) e é organizada em cinco etapas.</p>
   <div class="metod"><img class="mimg" src="/img/metodologia.png" alt="Ciclo da assistência contínua: diagnóstico, planejamento, adequação tecnológica, capacitação e avaliação de resultados" loading="lazy">
   <div class="etapas etl"><div class="etapa"><span class="n">1</span><div><h3>Diagnóstico produtivo individualizado</h3><p>O técnico visita a propriedade, conhece a realidade da produção, levanta dados técnicos e econômicos e identifica os gargalos.</p></div></div><div class="etapa"><span class="n">2</span><div><h3>Planejamento estratégico</h3><p>Com base no diagnóstico, produtor e técnico definem objetivos de curto e longo prazo, metas e as ações necessárias para alcançá-las.</p></div></div><div class="etapa"><span class="n">3</span><div><h3>Adequação tecnológica</h3><p>As melhorias recomendadas são colocadas em prática na propriedade (manejo, pastagem, sanidade, custos), com acompanhamento direto do técnico.</p></div></div><div class="etapa"><span class="n">4</span><div><h3>Capacitação profissional complementar</h3><p>Cursos de Formação Profissional Rural voltados às necessidades identificadas para o produtor e sua equipe.</p></div></div><div class="etapa"><span class="n">5</span><div><h3>Avaliação sistemática de resultados</h3><p>Medição periódica de produtividade, custo de produção e renda, para revisar o planejamento e ajustar os próximos passos.</p></div></div></div></div>
