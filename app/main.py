@@ -19,6 +19,23 @@ load_dotenv()
 
 BASE = Path(__file__).parent
 app = FastAPI(title="Plataforma da ATeG")
+
+from starlette.middleware.gzip import GZipMiddleware
+app.add_middleware(GZipMiddleware, minimum_size=800)
+
+
+@app.middleware("http")
+async def _cache_cdn(request, call_next):
+    """Respostas agregadas (sem dado pessoal) ficam 10 min na CDN da Vercel e no navegador: a 2ª visita abre quase instantânea."""
+    resp = await call_next(request)
+    p = request.url.path
+    if request.method == "GET" and resp.status_code == 200:
+        if p in ("/api/indicadores", "/api/cadeias", "/api/destaques", "/api/mapa"):
+            resp.headers["Cache-Control"] = "public, max-age=60, s-maxage=600, stale-while-revalidate=3600"
+        elif p.startswith("/img/"):
+            resp.headers["Cache-Control"] = "public, max-age=86400, stale-while-revalidate=604800"
+    return resp
+
 app.mount("/img", StaticFiles(directory=str(BASE / "static")), name="img")
 templates = Jinja2Templates(directory=str(BASE / "templates"))
 
