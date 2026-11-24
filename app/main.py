@@ -98,15 +98,22 @@ def indicadores():
                 COUNT(DISTINCT id_propriedade), COUNT(DISTINCT municipio), COUNT(DISTINCT id_visita), COUNT(DISTINCT tecnico), COUNT(DISTINCT id_visita) FILTER (WHERE valida),
                 COUNT(DISTINCT id_propriedade) FILTER (WHERE {ano}), COUNT(DISTINCT municipio) FILTER (WHERE {ano}),
                 COUNT(DISTINCT id_visita) FILTER (WHERE {ano}), COUNT(DISTINCT tecnico) FILTER (WHERE {ano}), COUNT(DISTINCT id_visita) FILTER (WHERE valida AND {ano}),
-                MAX(dt_visita), MIN(dt_visita), EXTRACT(year FROM CURRENT_DATE)::int, COUNT(DISTINCT projeto)
+                MAX(dt_visita), MIN(dt_visita), EXTRACT(year FROM CURRENT_DATE)::int, COUNT(DISTINCT atividade)
                 FROM {tab}""")).one()
             cad = [{"nome": n, "propriedades": int(q)} for n, q in con.execute(text(
                 f"SELECT projeto, COUNT(DISTINCT id_propriedade) q FROM {tab} WHERE projeto IS NOT NULL GROUP BY 1 ORDER BY 2 DESC LIMIT 8")).all()]
     except Exception:
         raise HTTPException(503, "Indicadores indisponíveis")
+    tec_tot, tec_ano = r[3], r[8]
+    try:  # técnicos do cadastro (ativos), em vez de quem aparece nas visitas
+        with _get_engine().connect() as con2:
+            rt = con2.execute(text("SELECT ativos, com_visita_no_ano FROM public.vw_tecnicos_resumo")).one()
+            tec_tot, tec_ano = rt[0], rt[1]
+    except Exception:
+        pass
     v = {"ano": r[12], "ate": r[10].isoformat() if r[10] else None, "desde": r[11].isoformat() if r[11] else None,
-         "total": {"propriedades": r[0], "municipios": r[1], "visitas": r[2], "tecnicos": r[3], "validas": r[4], "cadeias": r[13]},
-         "no_ano": {"propriedades": r[5], "municipios": r[6], "visitas": r[7], "tecnicos": r[8], "validas": r[9]},
+         "total": {"propriedades": r[0], "municipios": r[1], "visitas": r[2], "tecnicos": tec_tot, "validas": r[4], "cadeias": r[13]},
+         "no_ano": {"propriedades": r[5], "municipios": r[6], "visitas": r[7], "tecnicos": tec_ano, "validas": r[9]},
          "cadeias": cad}
     _cache.update(t=time.time(), v=v)
     return v
