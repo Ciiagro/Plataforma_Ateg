@@ -312,14 +312,15 @@ def comunicados_todos(request: Request, ok: str = "", erro: str = ""):
 
 
 @app.post("/comunicados")
-def comunicado_novo(request: Request, titulo: str = Form(""), texto: str = Form(""), destaque: str = Form("")):
+def comunicado_novo(request: Request, titulo: str = Form(""), texto: str = Form(""), destaque: str = Form(""), volta: str = Form("")):
+    base = "/colaborador" if volta == "colaborador" else "/comunicados"
     if not _logado(request):
         return RedirectResponse("/entrar?next=/colaborador", status_code=303)
     if not _eh_coord(request):
-        return RedirectResponse("/comunicados?erro=Só a coordenação publica comunicados.", status_code=303)
+        return RedirectResponse(base + "?erro=Só a coordenação publica comunicados.#comunicados", status_code=303)
     titulo, texto = (titulo or "").strip()[:150], (texto or "").strip()[:3000]
     if not titulo or not texto:
-        return RedirectResponse("/comunicados?erro=Preencha o título e o texto.", status_code=303)
+        return RedirectResponse(base + "?erro=Preencha o título e o texto.#comunicados", status_code=303)
     try:
         from sqlalchemy import text
         with _get_engine().begin() as con:
@@ -333,8 +334,8 @@ def comunicado_novo(request: Request, titulo: str = Form(""), texto: str = Form(
     except Exception:
         import logging
         logging.getLogger("uvicorn.error").exception("comunicado_novo")
-        return RedirectResponse("/comunicados?erro=Não foi possível publicar agora.", status_code=303)
-    return RedirectResponse("/comunicados?ok=Comunicado publicado.", status_code=303)
+        return RedirectResponse(base + "?erro=Não foi possível publicar agora.#comunicados", status_code=303)
+    return RedirectResponse(base + "?ok=Comunicado publicado.#comunicados", status_code=303)
 
 
 @app.post("/comunicados/{cid}/remover")
