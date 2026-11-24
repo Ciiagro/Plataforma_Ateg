@@ -261,6 +261,14 @@ a.cd:hover{filter:brightness(1.05)}
 .kp .kic svg{width:32px;height:32px;stroke:#fff}
 .kp{padding:18px 20px}
 @media(max-width:700px){.dt2{padding:12px 14px;font-size:16px;flex-wrap:wrap}.cxc .cads5{min-height:0}.cxc .cads5 .cd{min-height:150px}.cx2>.mp-g,.cx2>.cads5,.cx2>.cadnota{margin-left:12px;margin-right:12px}}
+/* barras do topo e menu alinhadas à largura do conteúdo, em todas as páginas */
+:root{--pad:clamp(16px,2vw,32px)}
+.topo{background:var(--bg)!important;padding:0 var(--pad)}
+.topo>.in{background:var(--verde);max-width:calc(1800px - 2*var(--pad));width:100%;padding:0 26px;border-radius:0 0 16px 16px;box-sizing:border-box}
+.menu{background:var(--bg)!important;border-bottom:0!important;box-shadow:none!important;padding:0 var(--pad)}
+.menu>.in{background:#fff;max-width:calc(1800px - 2*var(--pad));width:100%;padding:0 14px;border-radius:0 0 16px 16px;box-shadow:0 4px 14px rgba(23,51,36,.08);box-sizing:border-box;margin-top:0}
+.topo2{margin-top:12px}
+@media(max-width:800px){.topo,.menu{padding:0}.topo>.in,.menu>.in{max-width:none;border-radius:0}}
 </style>
 <link rel="stylesheet" href="/img/lib/leaflet.css">
 </head>
