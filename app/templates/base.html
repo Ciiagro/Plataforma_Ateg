@@ -238,6 +238,29 @@ a.cd:hover{filter:brightness(1.05)}
 .topo2 .in{padding-left:28px;padding-right:28px}.topo2 .sel{border-radius:0 0 14px 14px}
 .topo2 .herot{padding-bottom:40px}.topo2 .onda2{display:none}
 @media(max-width:800px){.topo2{width:100%;margin-top:0;border-radius:0}.topo2 .in{padding-left:16px;padding-right:16px}}
+/* ---- visual dos cartões (início) ---- */
+.cx2{padding:0;overflow:hidden;display:flex;flex-direction:column;border-radius:18px}
+.cx2>.mp-g,.cx2>.cads5,.cx2>.cadnota{margin-left:18px;margin-right:18px}
+.dt2{background:linear-gradient(90deg,#0b5a35,#14754a);color:#fff;margin:0 0 16px;padding:14px 20px;font-size:19px}
+.dt2 svg{stroke:#fff}.dt2 .dtx{flex:1}
+.dt2 .vmais{margin:0;background:transparent;border:1.5px solid #fff;color:#fff;padding:7px 18px;font-size:14px;white-space:nowrap}.dt2 .vmais:hover{background:#fff;color:var(--verde)}
+.cxc .cads5{flex:1;grid-auto-rows:1fr;min-height:360px;margin-bottom:0}
+.cxc .cads5 .cd{height:auto;min-height:300px}
+.cxc::after{content:"";display:block;height:70px;margin-top:0;background:radial-gradient(120% 100% at 20% 120%,#7fd36b 0 38%,transparent 39%),radial-gradient(120% 100% at 85% 130%,#1b8a4a 0 40%,transparent 41%),linear-gradient(#fff,#eaf6ec)}
+.cads5 .cdl{align-items:center!important;text-align:center;background:linear-gradient(0deg,rgba(7,62,36,.97),rgba(7,62,36,.88))!important;padding:12px 8px!important}
+.cads5 .cdl svg.ci{display:block!important;width:34px!important;height:34px!important;margin:-30px auto 2px;background:#0b5a35;border:3px solid #fff;border-radius:50%;padding:6px;stroke:#fff}
+.cads5 .cdl em{text-align:center;font-size:15px!important;width:100%}.cads5 .cdl em small{font-size:12px}
+.cads5 .cdl{flex-direction:column}
+/* mapa: legenda abaixo, sem sobrepor */
+.dm2 .mapa{display:flex;flex-direction:column;overflow:hidden}
+.dm2 .legm{position:static;display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;padding:10px 14px;background:#fff;border-top:1px solid var(--linha)}
+.dm2 .legm>div:first-child{width:100%;margin:0!important}
+.dm2 .legm p{margin:0}
+/* indicadores no estilo do desenho */
+.kp .kic{width:64px;height:64px;background:linear-gradient(135deg,#0b5a35,#1b8a4a)}
+.kp .kic svg{width:32px;height:32px;stroke:#fff}
+.kp{padding:18px 20px}
+@media(max-width:700px){.dt2{padding:12px 14px;font-size:16px;flex-wrap:wrap}.cxc .cads5{min-height:0}.cxc .cads5 .cd{min-height:150px}.cx2>.mp-g,.cx2>.cads5,.cx2>.cadnota{margin-left:12px;margin-right:12px}}
 </style>
 <link rel="stylesheet" href="/img/lib/leaflet.css">
 </head>
