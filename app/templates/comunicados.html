@@ -2,35 +2,75 @@
 {% block titulo %}Comunicados{% endblock %}
 {% block corpo %}
 <style>
-.cm{border-top:1px solid var(--linha);padding:12px 2px}.cm:first-of-type{border-top:0}
-.cm-t{display:flex;align-items:center;gap:10px;justify-content:space-between}.cm h3{margin:0;font-size:15.5px;color:var(--verde)}
-.cm .cm-dt{color:var(--mut);font-size:12.5px;white-space:nowrap}.cm p{margin:5px 0 4px;white-space:pre-line;line-height:1.5}
-.cm .por{display:flex;justify-content:space-between;align-items:center;color:var(--mut);font-size:12.5px}
-.cm .por button{background:none;border:0;color:#b3261e;font:inherit;font-weight:600;cursor:pointer}
-.mes-t{margin:26px 0 8px;font-size:18px;color:var(--verde);display:flex;align-items:center;gap:12px}.mes-t::after{content:"";flex:1;height:1px;background:#cfe0d5}
-.cx{background:#fff;border:1px solid var(--linha);border-radius:18px;box-shadow:var(--sombra);padding:8px 20px}
+.cp-topo{display:flex;align-items:center;gap:16px;padding:24px 0 6px;flex-wrap:wrap}
+.cp-topo .ic{width:54px;height:54px;border-radius:50%;background:#e4f4ea;color:var(--verde);display:grid;place-items:center;flex:none}
+.cp-topo .ic svg{width:28px;height:28px;fill:currentColor;stroke:currentColor;stroke-width:1.2;stroke-linejoin:round}
+.cp-topo h1{margin:0;font-size:30px;color:var(--verde);line-height:1.1}.cp-topo h1 em{color:#c99700;font-style:normal}
+.cp-topo p{margin:4px 0 0;color:var(--mut)}
+.cp-voltar{margin-left:auto;color:var(--verde2);font-weight:700;text-decoration:none;white-space:nowrap}
+.cp-busca{display:flex;gap:10px;align-items:center;margin:16px 0 4px}
+.cp-busca input{flex:1;max-width:420px;padding:10px 14px;border:1px solid var(--linha);border-radius:999px;font:inherit;background:#fff}
+.cp-busca span{color:var(--mut);font-size:13px}
+.cp-novo{background:#fff;border:1px solid var(--linha);border-radius:18px;box-shadow:var(--sombra);padding:18px 20px;margin:14px 0 4px}
+.cp-novo h2{margin:0 0 10px;font-size:18px;color:var(--verde)}
+.cp-novo input[type=text],.cp-novo textarea{width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid var(--linha);border-radius:10px;font:inherit;margin-bottom:10px}
+.cp-novo textarea{resize:vertical}
+.cp-mes{display:flex;align-items:center;gap:12px;margin:26px 0 10px;font-size:17px;font-weight:800;color:var(--verde)}
+.cp-mes small{font-weight:600;color:var(--mut);font-size:12.5px}.cp-mes::after{content:"";flex:1;height:1px;background:#cfe0d5}
+.cp-lista{display:grid;gap:10px}
+.cp-item{background:#fff;border:1px solid var(--linha);border-left:4px solid var(--verde);border-radius:14px;box-shadow:var(--sombra);padding:14px 18px}
+.cp-item.dest{border-left-color:var(--ouro);background:linear-gradient(90deg,#fffaf0,#fff 40%)}
+.cp-t{display:flex;align-items:flex-start;gap:12px;justify-content:space-between}
+.cp-t h3{margin:0;font-size:16px;color:var(--verde);overflow-wrap:anywhere}
+.cp-chip{display:inline-flex;align-items:center;gap:6px;background:#eef5f0;color:var(--mut);border-radius:999px;font-size:12.5px;padding:3px 11px;white-space:nowrap;flex:none}
+.cp-chip svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.cp-novo-b{background:#e5251f;color:#fff;border-radius:999px;font-size:11px;font-weight:800;padding:2px 9px}
+.cp-dest-b{background:#fff3cc;color:#7a5a00;border-radius:999px;font-size:11px;font-weight:800;padding:2px 9px}
+.cp-item p{margin:6px 0 8px;white-space:pre-line;line-height:1.5;overflow-wrap:anywhere}
+.cp-rod{display:flex;align-items:center;justify-content:space-between;gap:10px;color:var(--mut);font-size:12.5px}
+.cp-rod form{margin:0}
+.cp-rm{background:none;border:1px solid #f1c9c5;color:#b3261e;border-radius:999px;font:inherit;font-size:12.5px;font-weight:600;padding:3px 12px;cursor:pointer}
+.cp-rm:hover{background:#fde8e6}
+.cp-vazio{display:none;color:var(--mut);padding:16px 0}
 </style>
-<div class="in" style="padding-bottom:40px"><section class="hero"><span class="traco"></span><h1 class="t"><em>Comunicados</em> da coordenação</h1>
- <p class="lead">Todos os avisos, do mais recente para o mais antigo.</p>
- <p style="margin:8px 0 0"><a href="/colaborador#comunicados" style="color:var(--verde2);font-weight:700;text-decoration:none">← Voltar à Área do colaborador</a></p></section>
+<div class="in" style="padding-bottom:50px">
+ <div class="cp-topo"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 10v4h3l7 4V6L7 10z"/><path d="M17 9a4 4 0 0 1 0 6"/></svg></span>
+  <div><h1><em>Comunicados</em> da coordenação</h1><p>Todos os avisos, do mais recente para o mais antigo.</p></div>
+  <a class="cp-voltar" href="/colaborador#comunicados">← Voltar à Área do colaborador</a></div>
  {% if ok %}<div class="avisoex" style="background:#e4f4ea;color:#0c5232">{{ ok }}</div>{% endif %}
  {% if erro %}<div class="avisoex" style="background:#fde8e6;color:#b3261e">{{ erro }}</div>{% endif %}
-{% if eh_coord %}<section id="novo" class="cx" style="padding:18px 20px;margin-top:6px">
-  <h2 style="margin:0 0 10px;font-size:19px;color:var(--verde)">Novo comunicado</h2>
+
+ {% if eh_coord %}<section id="novo" class="cp-novo">
+  <h2>Novo comunicado</h2>
   <form method="post" action="/comunicados">
-   <input name="titulo" maxlength="150" required placeholder="Título" style="width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid var(--linha);border-radius:10px;font:inherit;margin-bottom:10px">
-   <textarea name="texto" maxlength="3000" required rows="4" placeholder="Texto do aviso" style="width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid var(--linha);border-radius:10px;font:inherit;margin-bottom:10px;resize:vertical"></textarea>
+   <input type="text" name="titulo" maxlength="150" required placeholder="Título">
+   <textarea name="texto" maxlength="3000" required rows="4" placeholder="Texto do aviso"></textarea>
    <label style="display:flex;align-items:center;gap:8px;margin:0 0 12px;font-weight:600;color:var(--verde)"><input type="checkbox" name="destaque" value="1"> Destacar no topo da Área do colaborador</label>
    <button type="submit" style="background:var(--verde);color:#fff;border:0;border-radius:999px;padding:11px 28px;font:inherit;font-weight:800;cursor:pointer">Publicar</button>
    <span style="color:var(--mut);font-size:12.5px;margin-left:10px">Visível para todos os colaboradores logados. A tela principal mostra os 5 mais recentes do mês.</span>
   </form></section>{% endif %}
- {% if comunicados %}{% set ns = namespace(mes='') %}
-  {% for c in comunicados %}
-   {% if c.mes != ns.mes %}{% if ns.mes %}</div>{% endif %}<h2 class="mes-t">{{ c.mes }}</h2><div class="cx">{% set ns.mes = c.mes %}{% endif %}
-   <article class="cm"><div class="cm-t"><h3>{{ c.titulo }}</h3><span class="cm-dt">{{ c.data }}</span></div>
-    <p>{{ c.texto }}</p>
-    <div class="por"><span>{{ c.por }}</span>{% if eh_coord %}<form method="post" action="/comunicados/{{ c.id }}/remover" onsubmit="return confirm('Remover este comunicado?')"><button type="submit">Remover</button></form>{% endif %}</div></article>
-  {% endfor %}</div>
- {% else %}<p style="color:var(--mut)">Nenhum comunicado publicado ainda.</p>{% endif %}
+
+ {% if comunicados %}
+ <div class="cp-busca"><input type="search" id="cpBusca" placeholder="Buscar comunicado…" aria-label="Buscar comunicado"><span id="cpConta">{{ comunicados|length }} comunicado{{ '' if comunicados|length == 1 else 's' }}</span></div>
+ {% set ns = namespace(mes='') %}
+ {% for c in comunicados %}
+  {% if c.mes != ns.mes %}{% if ns.mes %}</div>{% endif %}<div class="cp-mes" data-mes>{{ c.mes }}</div><div class="cp-lista">{% set ns.mes = c.mes %}{% endif %}
+  <article class="cp-item{% if c.destaque %} dest{% endif %}" data-txt="{{ (c.titulo ~ ' ' ~ c.texto ~ ' ' ~ c.por)|lower }}">
+   <div class="cp-t"><h3>{{ c.titulo }}</h3>
+    <span style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end">{% if c.destaque %}<span class="cp-dest-b">Destaque</span>{% endif %}{% if c.novo %}<span class="cp-novo-b">Novo</span>{% endif %}
+     <span class="cp-chip"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>{{ c.data }}</span></span></div>
+   <p>{{ c.texto }}</p>
+   <div class="cp-rod"><span>Publicado por {{ c.por }}</span>{% if eh_coord %}<form method="post" action="/comunicados/{{ c.id }}/remover" onsubmit="return confirm('Remover este comunicado?')"><button type="submit" class="cp-rm">Remover</button></form>{% endif %}</div>
+  </article>
+ {% endfor %}</div>
+ <p class="cp-vazio" id="cpVazio">Nenhum comunicado encontrado para essa busca.</p>
+ {% else %}<p style="color:var(--mut);margin-top:20px">Nenhum comunicado publicado ainda.</p>{% endif %}
 </div>
+<script>
+(function(){var q=document.getElementById('cpBusca');if(!q)return;var itens=[].slice.call(document.querySelectorAll('.cp-item')),meses=[].slice.call(document.querySelectorAll('[data-mes]')),v=document.getElementById('cpVazio'),n=document.getElementById('cpConta');
+function f(){var t=q.value.trim().toLowerCase(),c=0;itens.forEach(function(e){var ok=!t||e.dataset.txt.indexOf(t)>-1;e.style.display=ok?'':'none';if(ok)c++});
+meses.forEach(function(m){var l=m.nextElementSibling,vis=l&&[].some.call(l.children,function(x){return x.style.display!=='none'});m.style.display=vis?'':'none';if(l)l.style.display=vis?'':'none'});
+v.style.display=c?'none':'block';n.textContent=c+' comunicado'+(c===1?'':'s')}
+q.addEventListener('input',f)})();
+</script>
 {% endblock %}
