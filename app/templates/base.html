@@ -233,6 +233,11 @@ a.cd:hover{filter:brightness(1.05)}
 /* ícones dos indicadores */
 .kp .kic{width:56px;height:56px;border-radius:50%;background:#e4f4ea;display:flex;align-items:center;justify-content:center}
 .kp .kic svg{width:30px;height:30px;stroke:var(--verde2);fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+/* topo alinhado à largura do conteúdo */
+.topo2{width:calc(100% - 2*clamp(16px,2vw,32px));max-width:calc(1800px - 2*clamp(16px,2vw,32px));margin:12px auto 0;border-radius:22px;overflow:hidden}
+.topo2 .in{padding-left:28px;padding-right:28px}.topo2 .sel{border-radius:0 0 14px 14px}
+.topo2 .herot{padding-bottom:40px}.topo2 .onda2{display:none}
+@media(max-width:800px){.topo2{width:100%;margin-top:0;border-radius:0}.topo2 .in{padding-left:16px;padding-right:16px}}
 </style>
 <link rel="stylesheet" href="/img/lib/leaflet.css">
 </head>
